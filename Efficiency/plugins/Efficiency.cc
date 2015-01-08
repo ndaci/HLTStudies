@@ -11,23 +11,51 @@
      [Notes on implementation]
 */
 //
-// Original Author:  local user
+// Original Author:  ndaci
 //         Created:  Wed, 07 Jan 2015 13:48:51 GMT
 //
 //
 
 
-// system include files
+// C++ lib
 #include <memory>
 
-// user include files
+// CMSSW standard lib
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+// CMSSW specific lib
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/PFMETCollection.h"
+#include "DataFormats/METReco/interface/GenMET.h"
+#include "DataFormats/METReco/interface/GenMETCollection.h"
+#include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
+#include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
+#include "DataFormats/TauReco/interface/PFTau.h"
+#include "DataFormats/TauReco/interface/PFTauFwd.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+
 //
 // class declaration
 //
@@ -68,6 +96,9 @@ Efficiency::Efficiency(const edm::ParameterSet& iConfig)
 
 {
    //now do what ever initialization is needed
+  edm::InputTag _hltProcessName(pset.getParameter<std::string>("hltProcessName"));
+  edm::InputTag _genParticleLabel(pset.getParameter<std::string>("genParticleLabel"));
+  edm::InputTag _trigResultsLabel("TriggerResults", "", _hltProcessName);
 
 }
 
@@ -89,19 +120,11 @@ Efficiency::~Efficiency()
 void
 Efficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
 
+  //edm::Handle<edm::TriggerResults> trigResults;
 
+  //edm::Handle<reco::GenParticleCollection> genPart;
 
-#ifdef THIS_IS_AN_EVENT_EXAMPLE
-   Handle<ExampleData> pIn;
-   iEvent.getByLabel("example",pIn);
-#endif
-   
-#ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
-   ESHandle<SetupData> pSetup;
-   iSetup.get<SetupRecord>().get(pSetup);
-#endif
 }
 
 
