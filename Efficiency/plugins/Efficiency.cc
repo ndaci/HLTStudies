@@ -92,13 +92,16 @@ class Efficiency : public edm::EDAnalyzer {
 //
 // constructors and destructor
 //
-Efficiency::Efficiency(const edm::ParameterSet& iConfig)
+Efficiency::Efficiency(const edm::ParameterSet& pset)
 
 {
    //now do what ever initialization is needed
-  edm::InputTag _hltProcessName(pset.getParameter<std::string>("hltProcessName"));
-  edm::InputTag _genParticleLabel(pset.getParameter<std::string>("genParticleLabel"));
+  std::string   _hltProcessName(pset.getParameter<std::string>("hltProcessName"));
   edm::InputTag _trigResultsLabel("TriggerResults", "", _hltProcessName);
+  edm::InputTag _genParticleLabel(pset.getParameter<std::string>("genParticleLabel"));
+
+  edm::InputTag _jetCollection(pset.getParameter<edm::InputTag>("jetCollection"));
+  
 
 }
 
@@ -124,6 +127,9 @@ Efficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //edm::Handle<edm::TriggerResults> trigResults;
 
   //edm::Handle<reco::GenParticleCollection> genPart;
+
+  edm::Handle<reco::PFJetCollection> H_pfjets;
+  iEvent.getByLabel(_jetCollection , H_pfjets);
 
 }
 
