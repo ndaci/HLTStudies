@@ -79,6 +79,11 @@ class Efficiency : public edm::EDAnalyzer {
       //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
       // ----------member data ---------------------------
+  std::string   _hltProcessName;
+  edm::InputTag _trigResultsLabel;
+  edm::InputTag _genParticleLabel;
+  edm::InputTag _jetCollection;
+
 };
 
 //
@@ -92,17 +97,13 @@ class Efficiency : public edm::EDAnalyzer {
 //
 // constructors and destructor
 //
-Efficiency::Efficiency(const edm::ParameterSet& pset)
-
+Efficiency::Efficiency(const edm::ParameterSet& pset) :
+  _hltProcessName(pset.getParameter<std::string>("hltProcessName")),
+  _trigResultsLabel("TriggerResults", "", _hltProcessName),
+  _genParticleLabel(pset.getParameter<std::string>("genParticleLabel")),
+  _jetCollection(pset.getParameter<edm::InputTag>("jetCollection"))
 {
    //now do what ever initialization is needed
-  std::string   _hltProcessName(pset.getParameter<std::string>("hltProcessName"));
-  edm::InputTag _trigResultsLabel("TriggerResults", "", _hltProcessName);
-  edm::InputTag _genParticleLabel(pset.getParameter<std::string>("genParticleLabel"));
-
-  edm::InputTag _jetCollection(pset.getParameter<edm::InputTag>("jetCollection"));
-  
-
 }
 
 
