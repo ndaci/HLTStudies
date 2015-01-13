@@ -12,8 +12,10 @@ process.source = cms.Source("PoolSource",
     )
 )
 
-process.eff = cms.EDAnalyzer('Efficiency'
-)
-
-
+process.load("HLTStudies.Efficiency.efficiencyHLT_cfi")
 process.p = cms.Path(process.eff)
+
+# Output
+process.TFileService = cms.Service('TFileService',
+    fileName = cms.string('file:outeff.root')
+)
