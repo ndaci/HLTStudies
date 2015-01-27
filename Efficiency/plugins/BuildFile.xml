@@ -13,5 +13,6 @@
 <use   name="DataFormats/TauReco"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/HepMCCandidate"/>
+<use   name="RecoVertex/PrimaryVertexProducer"/>
 <use   name="hepmc"/>
 <flags   EDM_PLUGIN="1"/>
