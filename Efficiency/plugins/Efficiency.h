@@ -31,6 +31,10 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 // CMSSW specific lib
+#include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexSorter.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
@@ -74,33 +78,27 @@ class Efficiency : public edm::EDAnalyzer {
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
-  
  private:
   virtual void beginJob() override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override;
-  
+  virtual void Init();  
+
   //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
   //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
   //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   
   // ----------member data ---------------------------
-  string   _hltProcessName;
-  edm::InputTag _trigResultsLabel;
-  edm::InputTag _genParticleLabel;
-  edm::InputTag _pfjetCollection;
-  edm::InputTag _pfmetCollection;
-  edm::InputTag _muCollection;
-
-  string   _hltProcessName;
-  edm::InputTag _trigResultsLabel;
-  edm::InputTag _pfjetCollection;
-  edm::InputTag _vertexCollection;
-  GlobalPoint vertexPosition;
-
-  const UInt_t _nHLTPaths;
   vector<string> _namePaths;
+  string         _hltProcessName;
+  edm::InputTag  _trigResultsLabel;
+  edm::InputTag  _genParticleLabel;
+  edm::InputTag  _pfjetCollection;
+  edm::InputTag  _pfmetCollection;
+  edm::InputTag  _muCollection;
+  edm::InputTag  _vertexCollection;
+  GlobalPoint    _vertexPosition;
 
   // Tree and its branches
   TTree* _tree;
@@ -109,8 +107,7 @@ class Efficiency : public edm::EDAnalyzer {
   int _nEvent, _nRun, _nLumi, _nJet;
 
   // Trigger info
-  int _trig_pass[nHLTPaths] ;
-  TString _trig_name[nHLTPaths];
+  vector<int> _trig_pass;
 
   // Vertices
   int _vtx_N, _vtx_N_stored;
