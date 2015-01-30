@@ -12,7 +12,12 @@ Efficiency::Efficiency(const edm::ParameterSet& pset) :
   _pfjetCollection( pset.getParameter<edm::InputTag>("pfjetCollection")),
   _pfmetCollection( pset.getParameter<edm::InputTag>("pfmetCollection")),
   _muCollection(    pset.getParameter<edm::InputTag>("muCollection")),
-  _vertexCollection(pset.getParameter<edm::InputTag>("vertexCollection"))
+  //_vertexCollection(pset.getParameter<edm::InputTag>("vertexCollection")),
+  _usePtMHT( pset.getParameter<bool>("usePtMHT") ),
+  _minPtJetHt( pset.getParameter<double>("minPtJetHt") ), 
+  _maxEtaJetHt( pset.getParameter<double>("maxEtaJetHt") ), 
+  _minPtJetMht( pset.getParameter<double>("minPtJetMht") ), 
+  _maxEtaJetMht( pset.getParameter<double>("maxEtaJetMht") )
 {
 
   //now do what ever initialization is needed
@@ -24,6 +29,10 @@ Efficiency::Efficiency(const edm::ParameterSet& pset) :
   _tree->Branch("nRun",&_nRun,"nRun/I");
   _tree->Branch("nLumi",&_nLumi,"nLumi/I");
   //
+  // Trigger
+  _tree->Branch("trig_pass",&_trig_pass);
+  _tree->Branch("trig_n",&_trig_n,"trig_n/I");  
+  //
   // Vertices
   _tree->Branch("vtx_N",&_vtx_N,"vtx_N/I");
   _tree->Branch("vtx_normalizedChi2",&_vtx_normalizedChi2,"vtx_normalizedChi2[15]/D");
@@ -33,6 +42,24 @@ Efficiency::Efficiency(const edm::ParameterSet& pset) :
   _tree->Branch("vtx_x",&_vtx_x,"vtx_x[15]/D");
   _tree->Branch("vtx_y",&_vtx_y,"vtx_y[15]/D");
   _tree->Branch("vtx_z",&_vtx_z,"vtx_z[15]/D");
+  //
+  // MET
+  _tree->Branch("met", &_met,"met/D");  
+  _tree->Branch("mht", &_mht,"mht/D");  
+  _tree->Branch("metnomu", &_metnomu,"metnomu/D");  
+  _tree->Branch("mhtnomu", &_mhtnomu,"mhtnomu/D");  
+  _tree->Branch("met_eta", &_met_eta,"met_eta/D");  
+  _tree->Branch("mht_eta", &_mht_eta,"mht_eta/D");  
+  _tree->Branch("metnomu_eta", &_metnomu_eta,"metnomu_eta/D");  
+  _tree->Branch("mhtnomu_eta", &_mhtnomu_eta,"mhtnomu_eta/D");  
+  _tree->Branch("met_phi", &_met_phi,"met_phi/D");  
+  _tree->Branch("mht_phi", &_mht_phi,"mht_phi/D");  
+  _tree->Branch("metnomu_phi", &_metnomu_phi,"metnomu_phi/D");  
+  _tree->Branch("mhtnomu_phi", &_mhtnomu_phi,"mhtnomu_phi/D");  
+  _tree->Branch("met_dphi", &_met_dphi,"met_dphi/D");  
+  _tree->Branch("mht_dphi", &_mht_dphi,"mht_dphi/D");  
+  _tree->Branch("metnomu_dphi", &_metnomu_dphi,"metnomu_dphi/D");  
+  _tree->Branch("mhtnomu_dphi", &_mhtnomu_dphi,"mhtnomu_dphi/D");  
   //
   // Jets
   _tree->Branch("nJet",&_nJet,"nJet/I");
@@ -82,8 +109,8 @@ Efficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<edm::TriggerResults> H_trig;
   iEvent.getByLabel(_trigResultsLabel, H_trig);
 
-  edm::Handle<reco::VertexCollection> H_vert;
-  iEvent.getByLabel(_vertexCollection, H_vert);
+  //edm::Handle<reco::VertexCollection> H_vert;
+  //iEvent.getByLabel(_vertexCollection, H_vert);
 
   edm::Handle<reco::PFJetCollection> H_pfjets;
   iEvent.getByLabel(_pfjetCollection , H_pfjets);
@@ -120,7 +147,23 @@ Efficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   _nLumi  = iEvent.luminosityBlock();
   _nEvent = iEvent.id().event();
 
+  // TRIGGER RESULTS //
+  _trig_pass = "";
+  _trig_n    = 0;
+  TString path="";
+  // loop over H_trig
+  const edm::TriggerNames & triggerNames = iEvent.triggerNames(*H_trig);
+  for (int iHLT = 0 ; iHLT<static_cast<int>(H_trig->size()); ++iHLT) {	
+    if (H_trig->accept (iHLT)) {
+      path = TString(triggerNames.triggerName(iHLT));
+      _trig_pass += "_%_"+path ;
+      _trig_n++ ;
+    }
+  }
+  /////////////////////
+
   // VERTICES //
+  /*
   int vtx_counter=0;
   _vtx_N = H_vert->size();
   _vtx_N_stored = nV;
@@ -136,11 +179,11 @@ Efficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     _vertexPosition = local_vertexPosition;
   }
   else {
-    /*
-    GlobalPoint local_vertexPosition(bs.position().x(),
-				     bs.position().y(),
-				     bs.position().z());
-    */
+
+  //GlobalPoint local_vertexPosition(bs.position().x(),
+  //				     bs.position().y(),
+  //				     bs.position().z());
+
     GlobalPoint local_vertexPosition(0.,0.,0.);
     _vertexPosition = local_vertexPosition;
   }
@@ -158,7 +201,7 @@ Efficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		
     vtx_counter++;
   } // for loop on primary vertices
-
+*/
 
   // STORE JET INFORMATION //
   // Loop over PFJets where theJet is a pointer to a PFJet
@@ -193,6 +236,79 @@ Efficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   _nJet = nJ;
 
+  // MET INFORMATION //
+  const reco::PFMETCollection *C_pfmet = H_pfmet.product();
+  _METP4 = (*C_pfmet)[0].p4();
+
+  // MHT
+  int nj_ht = 0, nj_mht = 0;
+  double ht = 0., mhx = 0., mhy = 0.;
+  double pt, eta, phi, px, py;
+  //
+  for (reco::PFJetCollection::const_iterator theJet = H_pfjets->begin(); theJet != H_pfjets->end(); ++theJet){
+    //
+    pt = _usePtMHT ? theJet->pt() : theJet->et();
+    eta = theJet->eta();
+    phi = theJet->phi();
+    px = _usePtMHT ? theJet->px() : theJet->et() * cos(phi);
+    py = _usePtMHT ? theJet->py() : theJet->et() * sin(phi);
+    //
+    if (pt > _minPtJetHt && std::abs(eta) < _maxEtaJetHt) {
+      ht += pt;
+      ++nj_ht;
+    }
+    //
+    if (pt > _minPtJetMht && std::abs(eta) < _maxEtaJetMht) {
+      mhx -= px;
+      mhy -= py;
+      ++nj_mht;
+    }
+  }
+
+  // NoMu quantities
+  double mex_nomu=_METP4.Px();
+  double mey_nomu=_METP4.Py();
+  double mhx_nomu=mhx;
+  double mhy_nomu=mhy;
+  //
+  for (reco::MuonCollection::const_iterator theMu = H_mu->begin(); theMu != H_mu->end(); ++theMu) {
+    mex_nomu += theMu->px();
+    mey_nomu += theMu->py();
+    mhx_nomu += theMu->px();
+    mhy_nomu += theMu->py();
+  }
+
+  //if (nj_ht < minNJetHt_ ) { ht = 0; }
+  //if (nj_mht < minNJetMht_) { mhx = 0; mhy = 0; }
+
+  // 4-vectors
+  _METNoMuP4 = LV(mex_nomu, mey_nomu, 0, sqrt(mex_nomu*mex_nomu + mey_nomu*mey_nomu));
+  _MHTNoMuP4 = LV(mhx_nomu, mhy_nomu, 0, sqrt(mhx_nomu*mhx_nomu + mhy_nomu*mhy_nomu));
+  _MHTP4     = LV(mhx, mhy, 0, sqrt(mhx*mhx + mhy*mhy));
+
+  // Flat values
+  _met     = _METP4.Et();
+  _met_eta = _METP4.Eta();
+  _met_phi = _METP4.Phi();
+  _met_dphi= computeDeltaPhi( _met_phi , _jet_phi[0] );
+  //
+  _metnomu     = _METNoMuP4.Et();
+  _metnomu_eta = _METNoMuP4.Eta();
+  _metnomu_phi = _METNoMuP4.Phi();
+  _metnomu_dphi= computeDeltaPhi( _metnomu_phi , _jet_phi[0] );
+  //
+  _mht     = _MHTP4.Et();
+  _mht_eta = _MHTP4.Eta();
+  _mht_phi = _MHTP4.Phi();
+  _mht_dphi= computeDeltaPhi( _mht_phi , _jet_phi[0] );
+  //
+  _mhtnomu     = _MHTNoMuP4.Et();
+  _mhtnomu_eta = _MHTNoMuP4.Eta();
+  _mhtnomu_phi = _MHTNoMuP4.Phi();
+  _mhtnomu_dphi= computeDeltaPhi( _mhtnomu_phi , _jet_phi[0] );
+
+  
+  // FILL TREE //
   _tree->Fill();
 
 }
@@ -257,8 +373,15 @@ Efficiency::Init()
 {
 
   _nEvent = _nRun = _nLumi = 0;
-  _trig_pass.clear();
+  _trig_pass = "";
+  _trig_n = 0;
 
+  // MET
+  _met = _mht = _metnomu = _mhtnomu = 
+    _met_eta = _mht_eta = _metnomu_eta = _mhtnomu_eta = 
+    _met_phi = _mht_phi = _metnomu_phi = _mhtnomu_phi = 
+    _met_dphi = _mht_dphi = _metnomu_dphi = _mhtnomu_dphi = 0;
+  
   // Vertices
   _vtx_N = 0; 
   for(UInt_t iv=0;iv<nV;iv++) {
@@ -271,6 +394,7 @@ Efficiency::Init()
     _vtx_z[iv] = 0.;
   }
 
+  // Jets
   for(UInt_t i=0 ; i<nJ ; i++) {
     _jet_eta[i] = 0;
     _jet_phi[i] = 0;
@@ -287,6 +411,17 @@ Efficiency::Init()
     _jet_efrac_ch_Mu[i] = 0;
   }
 
+}
+
+double Efficiency::computeDeltaPhi(double phi1, double phi2)
+{
+  // Return value in [0;pi] 
+  /*
+  float dphi0 = TMath::Abs( phi1 - phi2 );
+  if(dphi0 > TMath::Pi()) return  TMath::TwoPi() - dphi0;
+  else                    return dphi0;
+  */
+  return TMath::Abs( TVector2::Phi_mpi_pi(phi1 - phi2) );
 }
 
 //define this as a plug-in

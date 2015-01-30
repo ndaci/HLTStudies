@@ -20,6 +20,7 @@
 
 // ROOT
 #include "TTree.h"
+#include "TVector2.h"
 
 // CMSSW standard lib
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -28,7 +29,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
 
 // CMSSW specific lib
 #include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexSorter.h"
@@ -62,6 +65,7 @@
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 // others
+typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > LV ;
 using namespace std;
 int verbose=1;
 const UInt_t nJ=3;
@@ -83,6 +87,7 @@ class Efficiency : public edm::EDAnalyzer {
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override;
   virtual void Init();  
+  double computeDeltaPhi(double phi1, double phi2);
 
   //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
   //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
@@ -97,8 +102,13 @@ class Efficiency : public edm::EDAnalyzer {
   edm::InputTag  _pfjetCollection;
   edm::InputTag  _pfmetCollection;
   edm::InputTag  _muCollection;
-  edm::InputTag  _vertexCollection;
-  GlobalPoint    _vertexPosition;
+  //edm::InputTag  _vertexCollection;
+  //GlobalPoint    _vertexPosition;
+  bool _usePtMHT;
+  double _minPtJetHt, _maxEtaJetHt, _minPtJetMht, _maxEtaJetMht;
+
+  // 4-vectors
+  LV _METP4, _MHTP4, _METNoMuP4, _MHTNoMuP4;
 
   // Tree and its branches
   TTree* _tree;
@@ -107,12 +117,19 @@ class Efficiency : public edm::EDAnalyzer {
   int _nEvent, _nRun, _nLumi, _nJet;
 
   // Trigger info
-  vector<int> _trig_pass;
+  TString _trig_pass;
+  int _trig_n;
 
   // Vertices
   int _vtx_N, _vtx_N_stored;
   double _vtx_x[nV], _vtx_y[nV], _vtx_z[nV];
   double _vtx_normalizedChi2[nV], _vtx_ndof[nV], _vtx_nTracks[nV], _vtx_d0[nV];
+
+  // MET
+  double _met,_mht,_metnomu,_mhtnomu,
+    _met_eta,_mht_eta,_metnomu_eta,_mhtnomu_eta,
+    _met_phi,_mht_phi,_metnomu_phi,_mhtnomu_phi,
+    _met_dphi,_mht_dphi,_metnomu_dphi,_mhtnomu_dphi;
 
   // Jets
   int _jet_mult_ch[nJ], _jet_mult_mu[nJ], _jet_mult_ne[nJ]; // multiplicities
