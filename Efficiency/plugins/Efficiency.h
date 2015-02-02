@@ -69,7 +69,7 @@ typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > LV ;
 using namespace std;
 int verbose=1;
 const UInt_t nJ=3;
-const UInt_t nV=20;
+const UInt_t nV=3;
 
 //
 // class declaration
