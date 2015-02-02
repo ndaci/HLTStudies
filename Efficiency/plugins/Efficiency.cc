@@ -21,6 +21,7 @@ Efficiency::Efficiency(const edm::ParameterSet& pset) :
 {
 
   //now do what ever initialization is needed
+  Init();
   edm::Service<TFileService> fs ;
   _tree = fs->make <TTree>("HLTStudies","Efficiency");
 
@@ -35,13 +36,13 @@ Efficiency::Efficiency(const edm::ParameterSet& pset) :
   //
   // Vertices
   _tree->Branch("vtx_N",&_vtx_N,"vtx_N/I");
-  _tree->Branch("vtx_normalizedChi2",&_vtx_normalizedChi2,"vtx_normalizedChi2[15]/D");
-  _tree->Branch("vtx_ndof",&_vtx_ndof,"vtx_ndof[15]/D");
-  _tree->Branch("vtx_nTracks",&_vtx_nTracks,"vtx_nTracks[15]/D");
-  _tree->Branch("vtx_d0",&_vtx_d0,"vtx_d0[15]/D");
-  _tree->Branch("vtx_x",&_vtx_x,"vtx_x[15]/D");
-  _tree->Branch("vtx_y",&_vtx_y,"vtx_y[15]/D");
-  _tree->Branch("vtx_z",&_vtx_z,"vtx_z[15]/D");
+  _tree->Branch("vtx_normalizedChi2",&_vtx_normalizedChi2,"vtx_normalizedChi2[3]/D");
+  _tree->Branch("vtx_ndof",&_vtx_ndof,"vtx_ndof[3]/D");
+  _tree->Branch("vtx_nTracks",&_vtx_nTracks,"vtx_nTracks[3]/D");
+  _tree->Branch("vtx_d0",&_vtx_d0,"vtx_d0[3]/D");
+  _tree->Branch("vtx_x",&_vtx_x,"vtx_x[3]/D");
+  _tree->Branch("vtx_y",&_vtx_y,"vtx_y[3]/D");
+  _tree->Branch("vtx_z",&_vtx_z,"vtx_z[3]/D");
   //
   // MET
   _tree->Branch("met", &_met,"met/D");  
@@ -64,11 +65,11 @@ Efficiency::Efficiency(const edm::ParameterSet& pset) :
   // Jets
   _tree->Branch("nJet",&_nJet,"nJet/I");
   //
-  _tree->Branch("jet_eta",&_jet_eta,"jet_eta/D");
-  _tree->Branch("jet_phi",&_jet_phi,"jet_phi/D");
-  _tree->Branch("jet_pt",&_jet_pt,"jet_pt/D");
-  _tree->Branch("jet_e",&_jet_e,"jet_e/D");
-  _tree->Branch("jet_m",&_jet_m,"jet_m/D");
+  _tree->Branch("jet_eta",&_jet_eta,"jet_eta[nJet]/D");
+  _tree->Branch("jet_phi",&_jet_phi,"jet_phi[nJet]/D");
+  _tree->Branch("jet_pt",&_jet_pt,"jet_pt[nJet]/D");
+  _tree->Branch("jet_e",&_jet_e,"jet_e[nJet]/D");
+  _tree->Branch("jet_m",&_jet_m,"jet_m[nJet]/D");
   //
   _tree->Branch("jet_mult_ch",&_jet_mult_ch,"jet_mult_ch[nJet]/I");
   _tree->Branch("jet_mult_mu",&_jet_mult_mu,"jet_mult_mu[nJet]/I");
@@ -160,6 +161,7 @@ Efficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       _trig_n++ ;
     }
   }
+
   /////////////////////
 
   // VERTICES //
