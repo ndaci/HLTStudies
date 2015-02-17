@@ -15,15 +15,17 @@
 #include <TH1D.h>
 #include <TH2D.h>
 #include <TH3D.h>
+#include <TEfficiency.h>
+#include <TCanvas.h>
 //
 // Header file for the classes stored in the TTree if any.
 #include <TString.h>
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
-typedef map<TString,TH1D*> M_VAR_H1D;
+typedef map<TString,TH1D*> M_VAR_H1D; // map var and histo
 typedef map<TString,TH2D*> M_VAR_H2D;
 typedef map<TString,TH3D*> M_VAR_H3D;
-typedef map< TString , M_VAR_H1D > M_HLT_VAR_H1D;
+typedef map< TString , M_VAR_H1D > M_HLT_VAR_H1D; // map path and previous map
 typedef map< TString , M_VAR_H2D > M_HLT_VAR_H2D;
 typedef map< TString , M_VAR_H3D > M_HLT_VAR_H3D;
 
@@ -144,6 +146,7 @@ class MakePlots : public TSelector {
   Int_t InitVar();
   // Define paths to analyze
   Int_t DefinePaths();
+  Bool_t FillNumerator(TString path);
   // Initialize ; fill ; rescale and write histograms
   Int_t InitHistos();
   Int_t FillHistos();
@@ -152,8 +155,9 @@ class MakePlots : public TSelector {
  private:
 
   vector<TString> _paths;
-  Double_t _nProcessed;
+  Double_t _nProcessed, _nPass, _nPassOR;
   TFile* _outfile;
+  TString _resultName;
 
   // Map of histograms and iterators
   M_HLT_VAR_H1D _mHltVarH1D;
