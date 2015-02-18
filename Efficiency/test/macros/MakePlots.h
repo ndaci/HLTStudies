@@ -17,6 +17,7 @@
 #include <TH3D.h>
 #include <TEfficiency.h>
 #include <TCanvas.h>
+#include <TPaveText.h>
 //
 // Header file for the classes stored in the TTree if any.
 #include <TString.h>
