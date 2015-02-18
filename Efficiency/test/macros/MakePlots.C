@@ -175,6 +175,8 @@ Int_t MakePlots::EndHistos()
   TString thePath,theVar;
   TH1D *hPass, *hTot;
   TEfficiency *pEff;
+  Double_t nPass, nTot,globalEff;
+  nPass=nTot=globalEff=0;
 
   // Loop over M_HLT_VAR_H1D : 1 path/entry
   for(_it_mHltVarH1D=_mHltVarH1D.begin() ; 
@@ -195,6 +197,13 @@ Int_t MakePlots::EndHistos()
       hPass  = _it_mVarH1D->second; // events passing thePath
       hTot   = _mHltVarH1D["all"][theVar]; // all events
 
+      nPass = (Double_t)hPass->Integral();
+      nTot  = (Double_t)hTot ->Integral();
+      globalEff = nTot!=0 ? nPass/nTot : -1.0;
+      TString s_globalEff = "#epsilon = "+TString(Form("%.1f",100*globalEff))+" %";
+
+      if(theVar=="PFMETNoMu") cout << thePath << " : " << 100*globalEff << " %" << endl;
+
       if( hTot && TEfficiency::CheckConsistency(*hPass,*hTot) ) {
 	pEff = new TEfficiency(*hPass,*hTot);
 	pEff->SetNameTitle( "t"+TString(hPass->GetName()) , 
@@ -202,6 +211,17 @@ Int_t MakePlots::EndHistos()
 	pEff->Write();
 	TCanvas c("c","c",0,0,600,600);
 	pEff->Draw("AP");
+
+	TPaveText *pt2 = new TPaveText(0.58,0.15,0.85,0.22,"brNDC"); 
+	pt2->SetLineColor(1);
+	pt2->SetTextColor(1);
+	pt2->SetTextFont(42);
+	pt2->SetTextSize(0.03);
+	pt2->SetFillColor(kWhite);
+	pt2->SetShadowColor(kWhite);
+	pt2->AddText(s_globalEff);
+	pt2->Draw();
+
 	c.Print("results/"+_resultName+"/"+TString(hPass->GetName())+".png","png");
       }
     }
