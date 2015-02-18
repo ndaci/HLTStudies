@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
-source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
+source_V13_7e33_V2 = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 readFiles.extend( [
        '/store/user/ndaci/DarkMatter_Monojet_M-1_AV_Tune4C_13TeV-madgraph/HLTMonojet_MonojetM1AV_r731_i731HLT1_V13_7e33_V2/396cea115ad7e87aa65f7c253532f162/hltSim_100_1_SOi.root',
        '/store/user/ndaci/DarkMatter_Monojet_M-1_AV_Tune4C_13TeV-madgraph/HLTMonojet_MonojetM1AV_r731_i731HLT1_V13_7e33_V2/396cea115ad7e87aa65f7c253532f162/hltSim_101_1_Fe0.root',
