@@ -20,7 +20,7 @@ void MakePlots::Begin(TTree * /*tree*/)
 
    // Prepare output file
    _resultName = "res_"+TString(fOption);
-   _outfile = new TFile("results/"+_resultName+".root","recreate");
+   _outfile = new TFile("results/"+_resultName+"/"+_resultName+".root","recreate");
    _outfile->cd();
 
    // Initialize tree variables
@@ -57,7 +57,7 @@ Bool_t MakePlots::Process(Long64_t entry)
   //if(_nProcessed>=5) return kTRUE;
 
   fChain->GetEntry(entry);
-  if(trig_pass->Contains("HLT_MonoCentralPFJet80_PFMETNoMu130_PFMHTNoMu130"))
+  if(trig_pass->Contains("HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120"))
     _nPass++ ;
 
   FillHistos();
@@ -247,14 +247,38 @@ Bool_t MakePlots::FillNumerator( TString path )
 
   // OR phase space
   TString myOption = TString(fOption);
+
   if(path.Contains("14e33") && myOption.Contains("14e33")) {
-    if(trig_pass->Contains("HLT_CaloJet500_NoJetID")) return true;
-    if(trig_pass->Contains("HLT_PFJet500")) return true;
-    //if(trig_pass->Contains("HLT_CaloMET170_NoiseCleaned")) return true;
-    if(trig_pass->Contains("HLT_DiCentralPFJet70_PFMET120_NoiseCleaned")) return true;
+    //if(trig_pass->Contains("HLT_CaloJet500_NoJetID")) return true;
+    //if(trig_pass->Contains("HLT_PFJet500")) return true;
+    if(trig_pass->Contains("HLT_CaloMET170_NoiseCleaned")) return true;
+    //if(trig_pass->Contains("HLT_DiCentralPFJet70_PFMET120_NoiseCleaned")) return true;
     if(trig_pass->Contains("HLT_PFMET170_NoiseCleaned")) return true;
-    if(trig_pass->Contains("HLT_PFMET120_PFMHT120_IDLoose")) return true;
-    if(trig_pass->Contains("HLT_MonoCentralPFJet80_PFMETNoMu130_PFMHTNoMu130_NoiseCleaned")) return true;
+    if(trig_pass->Contains("HLT_PFMET120_PFMHT120_IDTight")) return true;
+    if(trig_pass->Contains("HLT_PFMET120_PFMHT120_IDTight")) return true;
+    if(trig_pass->Contains("HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_NoiseCleaned")) return true;
+  }
+
+  else if(path.Contains("7e33") && myOption.Contains("7e33")) {
+    //if(trig_pass->Contains("HLT_CaloJet500_NoJetID")) return true;
+    //if(trig_pass->Contains("HLT_PFJet500")) return true;
+    if(trig_pass->Contains("HLT_CaloMET170_NoiseCleaned")) return true;
+    //if(trig_pass->Contains("HLT_DiCentralPFJet70_PFMET120_NoiseCleaned")) return true;
+    if(trig_pass->Contains("HLT_PFMET170_NoiseCleaned")) return true;
+    if(trig_pass->Contains("HLT_PFMET90_PFMHT90_IDTight")) return true;
+    if(trig_pass->Contains("HLT_PFMET90_PFMHT90_IDTight")) return true;
+    if(trig_pass->Contains("HLT_MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_NoiseCleaned")) return true;
+  }
+
+  else if(path.Contains("5e33") && myOption.Contains("5e33")) {
+    //if(trig_pass->Contains("HLT_CaloJet500_NoJetID")) return true;
+    //if(trig_pass->Contains("HLT_PFJet500")) return true;
+    if(trig_pass->Contains("HLT_CaloMET170_NoiseCleaned")) return true;
+    //if(trig_pass->Contains("HLT_DiCentralPFJet70_PFMET120_NoiseCleaned")) return true;
+    if(trig_pass->Contains("HLT_PFMET170_NoiseCleaned")) return true;
+    if(trig_pass->Contains("HLT_PFMET90_PFMHT90_IDTight")) return true;
+    if(trig_pass->Contains("HLT_PFMET90_PFMHT90_IDTight")) return true;
+    if(trig_pass->Contains("HLT_MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_NoiseCleaned")) return true;
   }
 
   /*
@@ -282,6 +306,28 @@ Int_t MakePlots::DefinePaths()
   _paths.push_back("OR_7e33");
   _paths.push_back("OR_5e33");
 
+  _paths.push_back("HLT_PFMET170_NoiseCleaned");
+  _paths.push_back("HLT_Overlap_PFMET170_CaloMET170");
+  _paths.push_back("HLT_Overlap_PFMET170_CaloMET180");
+  _paths.push_back("HLT_Overlap_PFMET170_CaloMET190");
+  _paths.push_back("HLT_Overlap_PFMET170_CaloMET200");
+  _paths.push_back("HLT_CaloMET170_NoiseCleaned");
+  _paths.push_back("HLT_CaloMET180_NoiseCleaned");
+  _paths.push_back("HLT_CaloMET190_NoiseCleaned");
+  _paths.push_back("HLT_CaloMET200_NoiseCleaned");
+  
+  _paths.push_back("HLT_PFMET90_PFMHT90_IDTight");
+  _paths.push_back("HLT_PFMET120_PFMHT120_IDTight");
+  _paths.push_back("HLT_PFMETNoMu90_NoiseCleaned_PFMHTNoMu90_IDTight");
+  _paths.push_back("HLT_PFMETNoMu120_NoiseCleaned_PFMHTNoMu120_IDTight");
+  _paths.push_back("HLT_Overlap_MET90_MHT90");
+  _paths.push_back("HLT_Overlap_MET120_MHT120");
+  
+  _paths.push_back("HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_NoiseCleaned");
+  _paths.push_back("HLT_MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_NoiseCleaned");
+  _paths.push_back("HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_NoiseCleaned_NoCalo");
+
+  /*
   _paths.push_back("HLT_CaloJet500_NoJetID");
   _paths.push_back("HLT_PFJet500");
   _paths.push_back("HLT_CaloMET170_NoiseCleaned");
@@ -538,6 +584,7 @@ Int_t MakePlots::DefinePaths()
   _paths.push_back("HLT_MonoCentralPFJet140_PFMETNoMu150_NoiseCleaned");
   _paths.push_back("HLT_MonoCentralPFJet140_PFMETNoMu160_NoiseCleaned");
   _paths.push_back("HLT_MonoCentralPFJet150_PFMETNoMu150_PFMHTNoMu150_NoiseCleaned");
+  */
 
   return 0;
 }
