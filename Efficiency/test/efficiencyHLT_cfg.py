@@ -5,7 +5,7 @@ process = cms.Process("EFF")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(9500) )
 
 tag="test"
 for i in range(0,len(sys.argv)):
@@ -28,8 +28,17 @@ from list_MonojetM1AV_r731_i731HLT1_V13_7e33_V2_cff   import *
 from list_files_DYMuMu_EDM_r731_i731HLT1_V13b_5e33_v5_cff import *
 from list_files_DYMuMu_EDM_r731_i731HLT1_V13b_7e33_v5_cff import *
 from list_files_DYMuMu_EDM_r731_i731HLT1_V13c_14e33_cff import *
+from list_MonojetM10AV_r740p8_i740p7HLT1_V8_14e33_v5_cff import *
+from list_MonojetM10AV_r740p8_i740p7HLT1_V8_7e33_v5_cff import *
+from list_MonojetM1AV_r740p8_i740p7HLT1_V8_5e33_v5_cff import *
 
-if   tag=="V13b_7e33_V2":
+if   tag=="M10_74X_V8_14e33_v5":
+    process.source = source_M10_74X_V8_14e33_v5
+elif tag=="M10_74X_V8_7e33_v5":
+    process.source = source_M10_74X_V8_7e33_v5
+elif tag=="M1_74X_V8_5e33_v5":
+    process.source = source_M1_74X_V8_5e33_v5
+elif tag=="V13b_7e33_V2":
     process.source = source_V13b_7e33_V2
 elif tag=="V13_7e33_V2":
     process.source = source_V13_7e33_V2
