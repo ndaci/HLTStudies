@@ -251,33 +251,33 @@ Bool_t MakePlots::FillNumerator( TString path )
   if(path.Contains("14e33") && myOption.Contains("14e33")) {
     //if(trig_pass->Contains("HLT_CaloJet500_NoJetID")) return true;
     //if(trig_pass->Contains("HLT_PFJet500")) return true;
-    if(trig_pass->Contains("HLT_CaloMET170_NoiseCleaned")) return true;
+    if(trig_pass->Contains("HLT_CaloMET200_NoiseCleaned")) return true;
     //if(trig_pass->Contains("HLT_DiCentralPFJet70_PFMET120_NoiseCleaned")) return true;
     if(trig_pass->Contains("HLT_PFMET170_NoiseCleaned")) return true;
     if(trig_pass->Contains("HLT_PFMET120_PFMHT120_IDTight")) return true;
-    if(trig_pass->Contains("HLT_PFMET120_PFMHT120_IDTight")) return true;
+    if(trig_pass->Contains("HLT_PFMETNoMu120_NoiseCleaned_PFMHTNoMu120_IDTight")) return true;
     if(trig_pass->Contains("HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_NoiseCleaned")) return true;
   }
 
   else if(path.Contains("7e33") && myOption.Contains("7e33")) {
     //if(trig_pass->Contains("HLT_CaloJet500_NoJetID")) return true;
     //if(trig_pass->Contains("HLT_PFJet500")) return true;
-    if(trig_pass->Contains("HLT_CaloMET170_NoiseCleaned")) return true;
+    if(trig_pass->Contains("HLT_CaloMET200_NoiseCleaned")) return true;
     //if(trig_pass->Contains("HLT_DiCentralPFJet70_PFMET120_NoiseCleaned")) return true;
     if(trig_pass->Contains("HLT_PFMET170_NoiseCleaned")) return true;
     if(trig_pass->Contains("HLT_PFMET90_PFMHT90_IDTight")) return true;
-    if(trig_pass->Contains("HLT_PFMET90_PFMHT90_IDTight")) return true;
+    if(trig_pass->Contains("HLT_PFMETNoMu90_NoiseCleaned_PFMHTNoMu90_IDTight")) return true;
     if(trig_pass->Contains("HLT_MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_NoiseCleaned")) return true;
   }
 
   else if(path.Contains("5e33") && myOption.Contains("5e33")) {
     //if(trig_pass->Contains("HLT_CaloJet500_NoJetID")) return true;
     //if(trig_pass->Contains("HLT_PFJet500")) return true;
-    if(trig_pass->Contains("HLT_CaloMET170_NoiseCleaned")) return true;
+    if(trig_pass->Contains("HLT_CaloMET200_NoiseCleaned")) return true;
     //if(trig_pass->Contains("HLT_DiCentralPFJet70_PFMET120_NoiseCleaned")) return true;
     if(trig_pass->Contains("HLT_PFMET170_NoiseCleaned")) return true;
     if(trig_pass->Contains("HLT_PFMET90_PFMHT90_IDTight")) return true;
-    if(trig_pass->Contains("HLT_PFMET90_PFMHT90_IDTight")) return true;
+    if(trig_pass->Contains("HLT_PFMETNoMu90_NoiseCleaned_PFMHTNoMu90_IDTight")) return true;
     if(trig_pass->Contains("HLT_MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_NoiseCleaned")) return true;
   }
 
