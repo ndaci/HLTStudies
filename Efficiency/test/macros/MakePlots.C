@@ -208,6 +208,24 @@ Int_t MakePlots::EndHistos()
 	pEff = new TEfficiency(*hPass,*hTot);
 	pEff->SetNameTitle( "t"+TString(hPass->GetName()) , 
 			    hPass->GetTitle() );
+  
+  TF1 *f1 = new TF1("fit",evaluate,50,400,5);
+  f1->SetParName(0, "m0");
+  f1->SetParName(1, "sigma");
+  f1->SetParName(2, "alpha");
+  f1->SetParName(3, "n");
+  f1->SetParName(4, "norm");
+  f1->SetParameter(0, 120);
+  f1->SetParameter(1, 1);
+  f1->SetParameter(2, 1);
+  f1->SetParameter(3, 5);
+  f1->SetParameter(4, 1);
+  f1->SetParLimits(1, 0.01, 50);
+  f1->SetParLimits(2, 0.01, 8);
+  f1->SetParLimits(3, 1.1, 35);
+  f1->SetParLimits(4, 0.6, 1);
+  pEff->Fit(f1);
+  
 	pEff->Write();
 	TCanvas c("c","c",0,0,600,600);
 	pEff->Draw("AP");
@@ -238,6 +256,64 @@ Int_t MakePlots::EndHistos()
   */
   
   return 0;
+}
+
+Double_t MakePlots::evaluate(double *x, double *par)
+{ 
+  double m = x[0];
+  double m0 = par[0];
+  double sigma = par[1];
+  double alpha = par[2];
+  double n = par[3];
+  double norm = par[4];
+  
+  const double sqrtPiOver2 = 1.2533141373; // sqrt(pi/2)
+  const double sqrt2 = 1.4142135624;
+
+  Double_t sig = fabs((Double_t) sigma);
+  
+  Double_t t = (m - m0)/sig ;
+  
+  if (alpha < 0)
+    t = -t;
+
+  Double_t absAlpha = fabs(alpha / sig);
+  Double_t a = TMath::Power(n/absAlpha,n)*exp(-0.5*absAlpha*absAlpha);
+  Double_t b = absAlpha - n/absAlpha;
+
+  //cout << a << " " << b << endl;
+
+  ////// Pour la crystal ball
+  // if (t <= absAlpha){
+  //   return norm * exp(-0.5*t*t);
+  // }
+  // else
+  //   {
+  //     return norm * a * TMath::Power(t-b,-n) ;
+  //   }
+
+  Double_t aireGauche = (1 + ApproxErf( absAlpha / sqrt2 )) * sqrtPiOver2 ;
+  Double_t aireDroite = ( a * 1/TMath::Power(absAlpha - b,n-1)) / (n - 1);
+  Double_t aire = aireGauche + aireDroite;
+
+  if ( t <= absAlpha ){
+    return norm * (1 + ApproxErf( t / sqrt2 )) * sqrtPiOver2 / aire ;
+  }
+  else{
+    return norm * (aireGauche +  a * (1/TMath::Power(t-b,n-1) - 1/TMath::Power(absAlpha - b,n-1)) / (1 - n)) / aire ;
+  }
+  
+ } 
+
+Double_t MakePlots::ApproxErf(Double_t arg)
+{
+  static const double erflim = 5.0;
+  if( arg > erflim )
+    return 1.0;
+  if( arg < -erflim )
+    return -1.0;
+  
+  return TMath::Erf(arg);
 }
 
 Bool_t MakePlots::FillNumerator( TString path )

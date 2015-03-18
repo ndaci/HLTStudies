@@ -12,12 +12,14 @@
 #include <TFile.h>
 #include <TSelector.h>
 #include <TStyle.h>
+#include <TF1.h>
 #include <TH1D.h>
 #include <TH2D.h>
 #include <TH3D.h>
 #include <TEfficiency.h>
 #include <TCanvas.h>
 #include <TPaveText.h>
+#include <TMath.h>
 //
 // Header file for the classes stored in the TTree if any.
 #include <TString.h>
@@ -177,6 +179,9 @@ class MakePlots : public TSelector {
   M_VAR_H2D::iterator _it_mVarH2D;
   M_VAR_H3D::iterator _it_mVarH3D;
   //
+  
+  static Double_t evaluate(double *x, double *par);
+  static Double_t ApproxErf(Double_t arg);
 };
 
 void MakePlots::Init(TTree *tree)
