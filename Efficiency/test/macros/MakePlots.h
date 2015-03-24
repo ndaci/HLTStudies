@@ -20,6 +20,7 @@
 #include <TCanvas.h>
 #include <TPaveText.h>
 #include <TMath.h>
+#include "TPaveStats.h"
 //
 // Header file for the classes stored in the TTree if any.
 #include <TString.h>
@@ -181,6 +182,7 @@ class MakePlots : public TSelector {
   //
   
   static Double_t evaluate(double *x, double *par);
+  static Double_t evaluate2(double *x, double *par);
   static Double_t ApproxErf(Double_t arg);
 };
 
