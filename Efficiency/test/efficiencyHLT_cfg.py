@@ -15,7 +15,8 @@ for i in range(0,len(sys.argv)):
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
         #'file:hlt_100_1_knd.root'
-        'file:hltSimMonojet_Phys14_14e33_100_1_SOi.root'
+        #'file:hltSimMonojet_Phys14_14e33_100_1_SOi.root'
+        'file:/user/ndaci/Data/DarkMonojet/TestHCAL/hltSim10000_Method3.root'
     )
 )
 
@@ -31,11 +32,11 @@ from list_files_DYMuMu_EDM_r731_i731HLT1_V13c_14e33_cff import *
 from list_MonojetM10AV_r740p8_i740p7HLT1_V8_14e33_v5_cff import *
 from list_MonojetM10AV_r740p8_i740p7HLT1_V8_7e33_v5_cff import *
 from list_MonojetM1AV_r740p8_i740p7HLT1_V8_5e33_v5_cff import *
-from list_MonojetM1AV_r740p8_i740p7HLT1_V8_14e33_v7_cff import *
+#from list_MonojetM1AV_r740p8_i740p7HLT1_V8_14e33_v7_cff import *
 
-if   tag=="M1_74X_V8_14e33_v7":
-    process.source = source_M1_74X_V8_14e33_v7
-elif tag=="M10_74X_V8_14e33_v5":
+#if   tag=="M1_74X_V8_14e33_v7":
+#    process.source = source_M1_74X_V8_14e33_v7
+if    tag=="M10_74X_V8_14e33_v5":
     process.source = source_M10_74X_V8_14e33_v5
 elif tag=="M10_74X_V8_7e33_v5":
     process.source = source_M10_74X_V8_7e33_v5
@@ -59,7 +60,12 @@ elif tag=="DYMuMu_V13b_7e33_v5":
     process.source = source_DYMuMu_V13b_7e33_v5
 elif tag=="DYMuMu_V13c_14e33":
     process.source = source_DYMuMu_V13c_14e33
-
+elif tag=="HCAL0":
+    process.source.fileNames = cms.untracked.vstring('file:/user/ndaci/Data/DarkMonojet/TestHCAL/hltSim10000_Method0.root')
+elif tag=="HCAL2":
+    process.source.fileNames = cms.untracked.vstring('file:/user/ndaci/Data/DarkMonojet/TestHCAL/hltSim10000_Method2.root')
+elif tag=="HCAL3":
+    process.source.fileNames = cms.untracked.vstring('file:/user/ndaci/Data/DarkMonojet/TestHCAL/hltSim10000_Method3_NewPaths.root')
 
 process.load("HLTStudies.Efficiency.efficiencyHLT_cfi")
 process.eff.namePaths = cms.vstring("")
