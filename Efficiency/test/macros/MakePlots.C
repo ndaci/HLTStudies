@@ -57,7 +57,7 @@ Bool_t MakePlots::Process(Long64_t entry)
   //if(_nProcessed>=5) return kTRUE;
 
   fChain->GetEntry(entry);
-  if(trig_pass->Contains("HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120"))
+  if(trig_pass->Contains("HLT_PFMETNoMu120_NoiseCleaned_PFMHTNoMu120_IDTight"))
     _nPass++ ;
 
   FillHistos();
@@ -209,41 +209,41 @@ Int_t MakePlots::EndHistos()
 	pEff->SetNameTitle( "t"+TString(hPass->GetName()) , 
 			    hPass->GetTitle() );
   
-  TF1 *f1 = new TF1("fit",evaluate,50,400,5);
-  f1->SetParName(0, "m0");
-  f1->SetParName(1, "sigma");
-  f1->SetParName(2, "alpha");
-  f1->SetParName(3, "n");
-  f1->SetParName(4, "norm");
-  f1->SetParameter(0, 120);
-  f1->SetParameter(1, 1);
-  f1->SetParameter(2, 1);
-  f1->SetParameter(3, 5);
-  f1->SetParameter(4, 1);
-//   f1->SetParLimits(1, 0.01, 50);
-//   f1->SetParLimits(2, 0.01, 8);
-//   f1->SetParLimits(3, 1.1, 35);
-//   f1->SetParLimits(4, 0.6, 1);
-  
-  TF1 *f2 = new TF1("fit2",evaluate2,0,500,3);
-  f2->SetParName(0, "midpoint");
-  f2->SetParName(1, "steepness");
-  f2->SetParName(2, "max");
-  f2->SetParameter(0, 120);
-  f2->SetParameter(1, 0.1);
-  f2->SetParameter(2, 1);
-  f2->SetParLimits(2, 0.8, 1);
-
-  pEff->Fit(f2);
+	TF1 *f1 = new TF1("fit",evaluate,50,400,5);
+	f1->SetParName(0, "m0");
+	f1->SetParName(1, "sigma");
+	f1->SetParName(2, "alpha");
+	f1->SetParName(3, "n");
+	f1->SetParName(4, "norm");
+	f1->SetParameter(0, 120);
+	f1->SetParameter(1, 1);
+	f1->SetParameter(2, 1);
+	f1->SetParameter(3, 5);
+	f1->SetParameter(4, 1);
+	//   f1->SetParLimits(1, 0.01, 50);
+	//   f1->SetParLimits(2, 0.01, 8);
+	//   f1->SetParLimits(3, 1.1, 35);
+	//   f1->SetParLimits(4, 0.6, 1);
+	
+	TF1 *f2 = new TF1("fit2",evaluate2,0,500,3);
+	f2->SetParName(0, "midpoint");
+	f2->SetParName(1, "steepness");
+	f2->SetParName(2, "max");
+	f2->SetParameter(0, 120);
+	f2->SetParameter(1, 0.1);
+	f2->SetParameter(2, 1);
+	f2->SetParLimits(2, 0.8, 1);
+	
+	pEff->Fit(f2);
 	pEff->Write();
 	TCanvas c("c","c",0,0,600,600);
 	pEff->Draw("AP");
+	
+	gStyle->SetStatX(0.85);
+	gStyle->SetStatY(0.4);
+	gStyle->SetStatW(0.2);
+	gStyle->SetStatH(0.1);
   
-  gStyle->SetStatX(0.85);
-  gStyle->SetStatY(0.4);
-  gStyle->SetStatW(0.2);
-  gStyle->SetStatH(0.1);
-
 	TPaveText *pt2 = new TPaveText(0.58,0.15,0.85,0.22,"brNDC"); 
 	pt2->SetLineColor(1);
 	pt2->SetTextColor(1);
@@ -253,12 +253,13 @@ Int_t MakePlots::EndHistos()
 	pt2->SetShadowColor(kWhite);
 	pt2->AddText(s_globalEff);
 	pt2->Draw();
-
+	
 	c.Print("results/"+_resultName+"/"+TString(hPass->GetName())+".png","png");
+	c.Print("results/"+_resultName+"/"+TString(hPass->GetName())+".pdf","pdf");
       }
     }
   }
-
+  
   /*
   for(_it_hTH2D=_hTH2D.begin() ; _it_hTH2D!=_hTH2D.end() ; _it_hTH2D++) {
 
@@ -351,7 +352,7 @@ Bool_t MakePlots::FillNumerator( TString path )
     if(trig_pass->Contains("HLT_PFMET170_NoiseCleaned")) return true;
     if(trig_pass->Contains("HLT_PFMET120_PFMHT120_IDTight")) return true;
     if(trig_pass->Contains("HLT_PFMETNoMu120_NoiseCleaned_PFMHTNoMu120_IDTight")) return true;
-    if(trig_pass->Contains("HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_NoiseCleaned")) return true;
+    if(trig_pass->Contains("HLT_MonoCentralPFJet80_PFMETNoMu120_NoiseCleaned_PFMHTNoMu120_IDTight")) return true;
   }
 
   else if(path.Contains("7e33") && myOption.Contains("7e33")) {
@@ -362,7 +363,7 @@ Bool_t MakePlots::FillNumerator( TString path )
     if(trig_pass->Contains("HLT_PFMET170_NoiseCleaned")) return true;
     if(trig_pass->Contains("HLT_PFMET90_PFMHT90_IDTight")) return true;
     if(trig_pass->Contains("HLT_PFMETNoMu90_NoiseCleaned_PFMHTNoMu90_IDTight")) return true;
-    if(trig_pass->Contains("HLT_MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_NoiseCleaned")) return true;
+    if(trig_pass->Contains("HLT_MonoCentralPFJet80_PFMETNoMu90_NoiseCleaned_PFMHTNoMu90_IDTight")) return true;
   }
 
   else if(path.Contains("5e33") && myOption.Contains("5e33")) {
@@ -373,7 +374,7 @@ Bool_t MakePlots::FillNumerator( TString path )
     if(trig_pass->Contains("HLT_PFMET170_NoiseCleaned")) return true;
     if(trig_pass->Contains("HLT_PFMET90_PFMHT90_IDTight")) return true;
     if(trig_pass->Contains("HLT_PFMETNoMu90_NoiseCleaned_PFMHTNoMu90_IDTight")) return true;
-    if(trig_pass->Contains("HLT_MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_NoiseCleaned")) return true;
+    if(trig_pass->Contains("HLT_MonoCentralPFJet80_PFMETNoMu90_NoiseCleaned_PFMHTNoMu90_IDTight")) return true;
   }
 
   /*
@@ -413,12 +414,19 @@ Int_t MakePlots::DefinePaths()
   _paths.push_back("HLT_PFMET90_PFMHT90_IDTight_v1");
   _paths.push_back("HLT_PFMET120_PFMHT120_IDTight_v1");
   _paths.push_back("HLT_PFMETNoMu90_NoiseCleaned_PFMHTNoMu90_IDTight_v1");
+  _paths.push_back("HLT_PFMETNoMu100_NoiseCleaned_PFMHTNoMu100_IDTight_v1");
+  _paths.push_back("HLT_PFMETNoMu110_NoiseCleaned_PFMHTNoMu110_IDTight_v1");
   _paths.push_back("HLT_PFMETNoMu120_NoiseCleaned_PFMHTNoMu120_IDTight_v1");
   _paths.push_back("HLT_Overlap_MET90_MHT90_v1");
   _paths.push_back("HLT_Overlap_MET120_MHT120_v1");
-  _paths.push_back("HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_NoiseCleaned_v1");
-  _paths.push_back("HLT_MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_NoiseCleaned_v1");
-  _paths.push_back("HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_NoiseCleaned_NoCalo_v1");
+  _paths.push_back("HLT_MonoCentralPFJet80_PFMETNoMu120_NoiseCleaned_PFMHTNoMu120_IDTight_v1");
+  _paths.push_back("HLT_MonoCentralPFJet80_PFMETNoMu90_NoiseCleaned_PFMHTNoMu90_IDTight_v1");
+
+  _paths.push_back("HLT_MonoCentralPFJet80_PFMETNoMu120_NoiseCleaned_v1");
+  _paths.push_back("HLT_MonoCentralPFJet80_PFMETNoMu120_NoiseCleaned_NoCaloMHT_v1");
+  _paths.push_back("HLT_PFMETNoMu120_NoiseCleaned");
+  _paths.push_back("HLT_PFMET120_NoiseCleaned");
+  //_paths.push_back("HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_NoiseCleaned_NoCalo_v1");
 /*
   _paths.push_back("HLT_CaloJet500_NoJetID_v1");
   _paths.push_back("HLT_PFJet500_v1");
@@ -442,7 +450,7 @@ Int_t MakePlots::DefinePaths()
   _paths.push_back("HLT_MonoCentralPFJet80_PFMETNoMu100_PFMHTNoMu120_NoiseCleaned_v1");
   _paths.push_back("HLT_MonoCentralPFJet80_PFMETNoMu130_PFMHTNoMu90_NoiseCleaned_v1");
   _paths.push_back("HLT_MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu130_NoiseCleaned_v1");
-  _paths.push_back("HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_NoiseCleaned_v1");
+  _paths.push_back("HLT_MonoCentralPFJet80_PFMETNoMu120_NoiseCleaned_PFMHTNoMu120_IDTight_v1");
   _paths.push_back("HLT_MonoCentralPFJet80_PFMETNoMu110_PFMHTNoMu130_NoiseCleaned_v1");
   _paths.push_back("HLT_MonoCentralPFJet80_PFMETNoMu130_PFMHTNoMu110_NoiseCleaned_v1");
   _paths.push_back("HLT_MonoCentralPFJet80_PFMETNoMu100_PFMHTNoMu140_NoiseCleaned_v1");
