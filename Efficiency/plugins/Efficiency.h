@@ -1,3 +1,6 @@
+#ifndef EFFICIENCY_H
+#define EFFICIENCY_H
+
 // -*- C++ -*-
 //
 // Package:    HLTStudies/Efficiency
@@ -67,9 +70,6 @@
 // others
 typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > LV ;
 using namespace std;
-int verbose=1;
-const UInt_t nJ=3;
-const UInt_t nV=3;
 
 //
 // class declaration
@@ -95,6 +95,12 @@ class Efficiency : public edm::EDAnalyzer {
   //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   
   // ----------member data ---------------------------
+
+  // "global" variables
+  int _verbose;
+  const UInt_t _nJ=3;
+  const UInt_t _nV=3;
+
   vector<string> _namePaths;
   string         _hltProcessName;
   edm::InputTag  _trigResultsLabel;
@@ -122,8 +128,8 @@ class Efficiency : public edm::EDAnalyzer {
 
   // Vertices
   int _vtx_N, _vtx_N_stored;
-  double _vtx_x[nV], _vtx_y[nV], _vtx_z[nV];
-  double _vtx_normalizedChi2[nV], _vtx_ndof[nV], _vtx_nTracks[nV], _vtx_d0[nV];
+  double _vtx_x[3], _vtx_y[3], _vtx_z[3];
+  double _vtx_normalizedChi2[3], _vtx_ndof[3], _vtx_nTracks[3], _vtx_d0[3];
 
   // MET
   double _met,_mht,_metnomu,_mhtnomu,
@@ -132,10 +138,10 @@ class Efficiency : public edm::EDAnalyzer {
     _met_dphi,_mht_dphi,_metnomu_dphi,_mhtnomu_dphi;
 
   // Jets
-  int _jet_mult_ch[nJ], _jet_mult_mu[nJ], _jet_mult_ne[nJ]; // multiplicities
-  double _jet_eta[nJ], _jet_phi[nJ], _jet_pt[nJ], _jet_e[nJ], _jet_m[nJ];
-  double _jet_efrac_ne_Had[nJ], _jet_efrac_ne_EM[nJ]; // neutral energy fractions
-  double _jet_efrac_ch_Had[nJ], _jet_efrac_ch_EM[nJ], _jet_efrac_ch_Mu[nJ]; // charged energy fractions
+  int _jet_mult_ch[3], _jet_mult_mu[3], _jet_mult_ne[3]; // multiplicities
+  double _jet_eta[3], _jet_phi[3], _jet_pt[3], _jet_e[3], _jet_m[3];
+  double _jet_efrac_ne_Had[3], _jet_efrac_ne_EM[3]; // neutral energy fractions
+  double _jet_efrac_ch_Had[3], _jet_efrac_ch_EM[3], _jet_efrac_ch_Mu[3]; // charged energy fractions
   
 };
 
@@ -147,3 +153,4 @@ class Efficiency : public edm::EDAnalyzer {
 // static data member definitions
 //
 
+#endif

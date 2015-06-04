@@ -124,22 +124,22 @@ Efficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // Check validity
   if(!H_trig.isValid()) {
-    if(verbose>0) cout << "Missing collection : " << _trigResultsLabel << " ... skip entry !" << endl;
+    if(_verbose>0) cout << "Missing collection : " << _trigResultsLabel << " ... skip entry !" << endl;
     return;
   }
 
   if(!H_pfjets.isValid()) {
-    if(verbose>0) cout << "Missing collection : " << _pfjetCollection << " ... skip entry !" << endl;
+    if(_verbose>0) cout << "Missing collection : " << _pfjetCollection << " ... skip entry !" << endl;
     return;
   }
 
   if(!H_pfmet.isValid()) {
-    if(verbose>0) cout << "Missing collection : " << _pfmetCollection << " ... skip entry !" << endl;
+    if(_verbose>0) cout << "Missing collection : " << _pfmetCollection << " ... skip entry !" << endl;
     return;
   }
 
   if(!H_mu.isValid()) {
-    if(verbose>0) cout << "Missing collection : " << _muCollection << " ... skip entry !" << endl;
+    if(_verbose>0) cout << "Missing collection : " << _muCollection << " ... skip entry !" << endl;
     return;
   }
 
@@ -168,7 +168,7 @@ Efficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   /*
   int vtx_counter=0;
   _vtx_N = H_vert->size();
-  _vtx_N_stored = nV;
+  _vtx_N_stored = _nV;
 	
   // select the primary vertex as the one with higest sum of (pt)^2 of tracks                                                                               
   PrimaryVertexSorter PVSorter;
@@ -191,7 +191,7 @@ Efficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   for( std::vector<reco::Vertex>::const_iterator PV = sortedVertices.begin(); PV != sortedVertices.end(); ++PV){
-    if(vtx_counter > int(nV)) break;
+    if(vtx_counter > int(_nV)) break;
 		
     _vtx_normalizedChi2[vtx_counter] = PV->normalizedChi2();
     _vtx_ndof[vtx_counter] = PV->ndof();
@@ -233,10 +233,10 @@ Efficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     _jet_mult_ne[iJ] = theJet->neutralMultiplicity();
 
     iJ++ ;
-    if(iJ>=nJ) break;
+    if(iJ>=_nJ) break;
   }
 
-  _nJet = nJ;
+  _nJet = _nJ;
 
   // MET INFORMATION //
   const reco::PFMETCollection *C_pfmet = H_pfmet.product();
@@ -386,7 +386,7 @@ Efficiency::Init()
   
   // Vertices
   _vtx_N = 0; 
-  for(UInt_t iv=0;iv<nV;iv++) {
+  for(UInt_t iv=0;iv<_nV;iv++) {
     _vtx_normalizedChi2[iv] = 0.;
     _vtx_ndof[iv] = 0.;
     _vtx_nTracks[iv] = 0.;
@@ -397,7 +397,7 @@ Efficiency::Init()
   }
 
   // Jets
-  for(UInt_t i=0 ; i<nJ ; i++) {
+  for(UInt_t i=0 ; i<_nJ ; i++) {
     _jet_eta[i] = 0;
     _jet_phi[i] = 0;
     _jet_pt[i]  = 0;
