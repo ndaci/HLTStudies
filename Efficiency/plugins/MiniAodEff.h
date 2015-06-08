@@ -171,8 +171,8 @@ class MiniAodEff : public edm::EDAnalyzer {
 
   // Vertices
   Int_t _vtx_N, _vtx_N_stored;
-  Double_t _vtx_x[3], _vtx_y[3], _vtx_z[3];
-  Double_t _vtx_normalizedChi2[3], _vtx_ndof[3], _vtx_nTracks[3], _vtx_d0[3];
+  Double_t _vtx_x[100], _vtx_y[100], _vtx_z[100];
+  Double_t _vtx_normalizedChi2[100], _vtx_ndof[100], _vtx_nTracks[100], _vtx_d0[100];
 
   // MET
   Double_t _met,_mht,_metnomu,_mhtnomu,
