@@ -75,13 +75,13 @@ MiniAodEff::MiniAodEff(const edm::ParameterSet& pset)
   //
   // Vertices
   _tree->Branch("vtx_N",&_vtx_N,"vtx_N/I");
-  _tree->Branch("vtx_normalizedChi2",&_vtx_normalizedChi2,"vtx_normalizedChi2[3]/D");
-  _tree->Branch("vtx_ndof",&_vtx_ndof,"vtx_ndof[3]/D");
-  _tree->Branch("vtx_nTracks",&_vtx_nTracks,"vtx_nTracks[3]/D");
-  _tree->Branch("vtx_d0",&_vtx_d0,"vtx_d0[3]/D");
-  _tree->Branch("vtx_x",&_vtx_x,"vtx_x[3]/D");
-  _tree->Branch("vtx_y",&_vtx_y,"vtx_y[3]/D");
-  _tree->Branch("vtx_z",&_vtx_z,"vtx_z[3]/D");
+  _tree->Branch("vtx_normalizedChi2",&_vtx_normalizedChi2,"vtx_normalizedChi2[vtx_N]/D");
+  _tree->Branch("vtx_ndof",&_vtx_ndof,"vtx_ndof[vtx_N]/D");
+  _tree->Branch("vtx_nTracks",&_vtx_nTracks,"vtx_nTracks[vtx_N]/D");
+  _tree->Branch("vtx_d0",&_vtx_d0,"vtx_d0[vtx_N]/D");
+  _tree->Branch("vtx_x",&_vtx_x,"vtx_x[vtx_N]/D");
+  _tree->Branch("vtx_y",&_vtx_y,"vtx_y[vtx_N]/D");
+  _tree->Branch("vtx_z",&_vtx_z,"vtx_z[vtx_N]/D");
   //
   // MET
   _tree->Branch("met", &_met,"met/D");  
