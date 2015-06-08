@@ -33,5 +33,5 @@ if tag!="":
     tag = "_"+tag
 
 process.TFileService = cms.Service('TFileService',
-    fileName = cms.string('outeff'+tag+'.root')
+    fileName = cms.string('outeffmini'+tag+'.root')
 )
