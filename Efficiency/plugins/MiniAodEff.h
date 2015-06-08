@@ -157,7 +157,7 @@ class MiniAodEff : public edm::EDAnalyzer {
   TTree* _tree;
 
   // Global quantities
-  Int_t _nEvent, _nRun, _nLumi, _nJet;
+  Int_t _nEvent, _nRun, _nLumi;
 
   // Trigger info
   TString _trig_pass;
@@ -180,10 +180,11 @@ class MiniAodEff : public edm::EDAnalyzer {
     _met_dphi,_mht_dphi,_metnomu_dphi,_mhtnomu_dphi;
 
   // Jets
-  Int_t _jet_mult_ch[3], _jet_mult_mu[3], _jet_mult_ne[3]; // multiplicities
-  Double_t _jet_eta[3], _jet_phi[3], _jet_pt[3], _jet_e[3], _jet_m[3];
-  Double_t _jet_efrac_ne_Had[3], _jet_efrac_ne_EM[3]; // neutral energy fractions
-  Double_t _jet_efrac_ch_Had[3], _jet_efrac_ch_EM[3], _jet_efrac_ch_Mu[3]; // charged energy fractions
+  Int_t _jet_N;
+  vector<int>    _jet_mult_ch, _jet_mult_mu, _jet_mult_ne; // multiplicities
+  vector<double> _jet_eta, _jet_phi, _jet_pt, _jet_e, _jet_m;
+  vector<double> _jet_efrac_ne_Had, _jet_efrac_ne_EM; // neutral energy fractions
+  vector<double> _jet_efrac_ch_Had, _jet_efrac_ch_EM, _jet_efrac_ch_Mu; // charged energy fractions
   
 };
 

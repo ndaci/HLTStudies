@@ -98,23 +98,23 @@ MiniAodEff::MiniAodEff(const edm::ParameterSet& pset)
   _tree->Branch("mhtnomu_dphi", &_mhtnomu_dphi,"mhtnomu_dphi/D");  
   //
   // Jets
-  _tree->Branch("nJet",&_nJet,"nJet/I");
+  _tree->Branch("jet_N",&_jet_N,"jet_N/I");
   //
-  _tree->Branch("jet_eta",&_jet_eta,"jet_eta[nJet]/D");
-  _tree->Branch("jet_phi",&_jet_phi,"jet_phi[nJet]/D");
-  _tree->Branch("jet_pt",&_jet_pt,"jet_pt[nJet]/D");
-  _tree->Branch("jet_e",&_jet_e,"jet_e[nJet]/D");
-  _tree->Branch("jet_m",&_jet_m,"jet_m[nJet]/D");
+  _tree->Branch("jet_eta","std::vector<double>",&_jet_eta,buffersize);
+  _tree->Branch("jet_phi","std::vector<double>",&_jet_phi,buffersize);
+  _tree->Branch("jet_pt","std::vector<double>",&_jet_pt,buffersize);
+  _tree->Branch("jet_e","std::vector<double>",&_jet_e,buffersize);
+  _tree->Branch("jet_m","std::vector<double>",&_jet_m,buffersize);
   //
-  _tree->Branch("jet_mult_ch",&_jet_mult_ch,"jet_mult_ch[nJet]/I");
-  _tree->Branch("jet_mult_mu",&_jet_mult_mu,"jet_mult_mu[nJet]/I");
-  _tree->Branch("jet_mult_ne",&_jet_mult_ne,"jet_mult_ne[nJet]/I");
+  _tree->Branch("jet_mult_ch","std::vector<int>",&_jet_mult_ch,buffersize);
+  _tree->Branch("jet_mult_mu","std::vector<int>",&_jet_mult_mu,buffersize);
+  _tree->Branch("jet_mult_ne","std::vector<int>",&_jet_mult_ne,buffersize);
   //
-  _tree->Branch("jet_efrac_ne_Had", &_jet_efrac_ne_Had, "jet_efrac_ne_Had[nJet]/D");
-  _tree->Branch("jet_efrac_ne_EM",  &_jet_efrac_ne_EM,  "jet_efrac_ne_EM[nJet]/D" );
-  _tree->Branch("jet_efrac_ch_Had", &_jet_efrac_ch_Had, "jet_efrac_ch_Had[nJet]/D");
-  _tree->Branch("jet_efrac_ch_EM",  &_jet_efrac_ch_EM,  "jet_efrac_ch_EM[nJet]/D" );
-  _tree->Branch("jet_efrac_ch_Mu",  &_jet_efrac_ch_Mu,  "jet_efrac_ch_Mu[nJet]/D" );
+  _tree->Branch("jet_efrac_ne_Had","std::vector<double>", &_jet_efrac_ne_Had,buffersize);
+  _tree->Branch("jet_efrac_ne_EM","std::vector<double>",  &_jet_efrac_ne_EM,buffersize);
+  _tree->Branch("jet_efrac_ch_Had","std::vector<double>", &_jet_efrac_ch_Had,buffersize);
+  _tree->Branch("jet_efrac_ch_EM","std::vector<double>",  &_jet_efrac_ch_EM,buffersize);
+  _tree->Branch("jet_efrac_ch_Mu","std::vector<double>",  &_jet_efrac_ch_Mu,buffersize);
   //
 
 }
@@ -375,34 +375,30 @@ MiniAodEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   // Loop over PFJets where theJet is a pointer to a PFJet
   // loop only over 3 highest-pt jets
   //
-  UInt_t iJ=0;
+  _jet_N = H_jets->size();
   //
   for (pat::JetCollection::const_iterator theJet = H_jets->begin(); theJet != H_jets->end(); ++theJet){
 
     // Kinematics
-    _jet_pt[iJ]  = theJet->pt();
-    _jet_eta[iJ] = theJet->eta();
-    _jet_phi[iJ] = theJet->phi();
-    _jet_e[iJ]   = theJet->energy();
-    _jet_m[iJ]   = theJet->mass();
+    _jet_pt.push_back  ( theJet->pt() );
+    _jet_eta.push_back ( theJet->eta() );
+    _jet_phi.push_back ( theJet->phi() );
+    _jet_e.push_back   ( theJet->energy() );
+    _jet_m.push_back   ( theJet->mass() );
 
     // Energy fractions
-    _jet_efrac_ne_Had[iJ] = theJet->neutralHadronEnergyFraction();
-    _jet_efrac_ne_EM[ iJ] = theJet->neutralEmEnergyFraction();
-    _jet_efrac_ch_Had[iJ] = theJet->chargedHadronEnergyFraction();
-    _jet_efrac_ch_EM[ iJ] = theJet->chargedEmEnergyFraction();
-    _jet_efrac_ch_Mu[ iJ] = theJet->chargedMuEnergyFraction();
+    _jet_efrac_ne_Had.push_back( theJet->neutralHadronEnergyFraction() );
+    _jet_efrac_ne_EM.push_back ( theJet->neutralEmEnergyFraction() );
+    _jet_efrac_ch_Had.push_back( theJet->chargedHadronEnergyFraction() );
+    _jet_efrac_ch_EM.push_back ( theJet->chargedEmEnergyFraction() );
+    _jet_efrac_ch_Mu.push_back ( theJet->chargedMuEnergyFraction() );
 
     // Multiplicities
-    _jet_mult_ch[iJ] = theJet->chargedMultiplicity();
-    _jet_mult_mu[iJ] = theJet->muonMultiplicity();
-    _jet_mult_ne[iJ] = theJet->neutralMultiplicity();
+    _jet_mult_ch.push_back ( theJet->chargedMultiplicity() );
+    _jet_mult_mu.push_back ( theJet->muonMultiplicity() );
+    _jet_mult_ne.push_back ( theJet->neutralMultiplicity() );
 
-    iJ++ ;
-    if(iJ>=_nJ) break;
   }
-
-  _nJet = _nJ;
 
   // MET INFORMATION //
   const pat::METCollection *C_pfmet = H_met.product();
@@ -537,7 +533,7 @@ MiniAodEff::Init()
 {
 
   _verbose = 1;
-  _nEvent = _nRun = _nLumi = _nJet = 0;
+  _nEvent = _nRun = _nLumi = 0;
 
   // Trigger
   _trig_pass = "";
@@ -571,23 +567,21 @@ MiniAodEff::Init()
     _met_phi = _mht_phi = _metnomu_phi = _mhtnomu_phi = 
     _met_dphi = _mht_dphi = _metnomu_dphi = _mhtnomu_dphi = 0;
   
-
   // Jets
-  for(UInt_t i=0 ; i<_nJ ; i++) {
-    _jet_eta[i] = 0;
-    _jet_phi[i] = 0;
-    _jet_pt[i]  = 0;
-    _jet_e[i]   = 0;
-    _jet_m[i]   = 0;
-    _jet_mult_ch[i] = 0;
-    _jet_mult_mu[i] = 0;
-    _jet_mult_ne[i] = 0;
-    _jet_efrac_ne_Had[i] = 0;
-    _jet_efrac_ne_EM[i] = 0;
-    _jet_efrac_ch_Had[i] = 0; 
-    _jet_efrac_ch_EM[i] = 0; 
-    _jet_efrac_ch_Mu[i] = 0;
-  }
+  _jet_N=0;
+  _jet_eta.clear() ;
+  _jet_phi.clear() ;
+  _jet_pt.clear()  ;
+  _jet_e.clear()   ;
+  _jet_m.clear()   ;
+  _jet_mult_ch.clear() ;
+  _jet_mult_mu.clear() ;
+  _jet_mult_ne.clear() ;
+  _jet_efrac_ne_Had.clear() ;
+  _jet_efrac_ne_EM.clear() ;
+  _jet_efrac_ch_Had.clear() ; 
+  _jet_efrac_ch_EM.clear() ; 
+  _jet_efrac_ch_Mu.clear() ;
 
 }
 
