@@ -113,7 +113,7 @@ class MiniAodEff : public edm::EDAnalyzer {
   // "global" variables
   Int_t _verbose;
   const UInt_t _nJ=3;
-  const UInt_t _nV=3;
+  const UInt_t _nV=100;
 
   // Input tags
   vector<string> _namePaths;
