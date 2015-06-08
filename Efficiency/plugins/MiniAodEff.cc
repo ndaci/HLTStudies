@@ -255,9 +255,9 @@ MiniAodEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   // TRIGGER OBJECTS //
-  string trgColl,trgFiltStr;
+  string trgColl,trgFiltStr,trgPathsFFStr;
   vector<int> trgIds;
-  vector<string> trgFilt;
+  vector<string> trgFilt, trgPathsFF, trgPathsFT, trgPathsTF, trgPathsTT;
 
   cout << "$$$ SIZE OF H_trg_obj = " 
        << H_trg_obj->size()
@@ -302,35 +302,44 @@ MiniAodEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     _trig_obj_lab.push_back(trgFiltStr);
 
     // Trigger paths
-    _trig_obj_path_FF  = obj.pathNames(false,false);
-    _trig_obj_path_FT  = obj.pathNames(false,true);
-    _trig_obj_path_TF  = obj.pathNames(true,false);
-    _trig_obj_path_TT = obj.pathNames(true,true);
+    trgPathsFF = obj.pathNames(false,false);
+    trgPathsFT = obj.pathNames(false,true);
+    trgPathsTF = obj.pathNames(true,false);
+    trgPathsTT = obj.pathNames(true,true);
     //
-    cout << "\t   Paths (" << _trig_obj_path_FF.size()<<"/"<<_trig_obj_path_TT.size()<<"):    ";
+    _trig_obj_path_FT.push_back(concatenate(trgPathsFT));
+    _trig_obj_path_TF.push_back(concatenate(trgPathsTF));
+    _trig_obj_path_TT.push_back(concatenate(trgPathsTT));
     //
-    _trig_obj_path.push_back(_trig_obj_path_FF);
+    cout << "\t   Paths (" << trgPathsFF.size()<<"/"<<trgPathsTT.size()<<"):    ";
+    //
 
-    for (unsigned h = 0, n = _trig_obj_path_FF.size(); h < n; ++h) {
+    // Loop over all associated paths
+    for (unsigned h = 0, n = trgPathsFF.size(); h < n; ++h) {
 
-      bool isNone = obj.hasPathName( _trig_obj_path_FF[h], false, false ); 
-      bool isL3   = obj.hasPathName( _trig_obj_path_FF[h], false, true ); 
-      bool isLF   = obj.hasPathName( _trig_obj_path_FF[h], true, false ); 
-      bool isBoth = obj.hasPathName( _trig_obj_path_FF[h], true, true ); 
+      trgPathsFFStr += trgPathsFF[h]+"_%_";      
 
-      cout << "   " << _trig_obj_path_FF[h];
+      bool isNone = obj.hasPathName( trgPathsFF[h], false, false ); 
+      bool isL3   = obj.hasPathName( trgPathsFF[h], false, true ); 
+      bool isLF   = obj.hasPathName( trgPathsFF[h], true, false ); 
+      bool isBoth = obj.hasPathName( trgPathsFF[h], true, true ); 
+
+      cout << "   " << trgPathsFF[h];
       if (isBoth) cout << "(L,3)";
       if (isL3 && !isBoth) cout << "(*,3)";
       if (isLF && !isBoth) cout << "(L,*)";
       if (isNone && !isBoth && !isL3 && !isLF) cout << "(*,*)";
     }
     cout << endl;
+    //
+    _trig_obj_path_FF.push_back(trgPathsFFStr);
 
     // Clear vectors
     trgIds.clear();
     trgFilt.clear(); 
     trgFiltStr="";
     trgColl="";
+    trgPathsFFStr="";
 
     // Increment trigger object index
     _trig_obj_n++ ;
@@ -557,7 +566,10 @@ MiniAodEff::Init()
   _trig_obj_col.clear();
   _trig_obj_lab.clear();
   _trig_obj_ids.clear();
-  _trig_obj_path.clear();
+  _trig_obj_path_FF.clear();
+  _trig_obj_path_FT.clear();
+  _trig_obj_path_TF.clear();
+  _trig_obj_path_TT.clear();
 
   // Vertices
   _vtx_N = _vtx_N_stored = 0; 
@@ -596,7 +608,7 @@ MiniAodEff::Init()
 
 }
 
-double MiniAodEff::computeDeltaPhi(double phi1, double phi2)
+Double_t MiniAodEff::computeDeltaPhi(double phi1, double phi2)
 {
   // Return value in [0;pi] 
   /*
@@ -605,6 +617,15 @@ double MiniAodEff::computeDeltaPhi(double phi1, double phi2)
   else                    return dphi0;
   */
   return TMath::Abs( TVector2::Phi_mpi_pi(phi1 - phi2) );
+}
+
+string MiniAodEff::concatenate(vector<string> vstring)
+{
+  string result;
+  for(UInt_t i=0 ; i<vstring.size() ; i++) {
+    result += vstring[i]+"_%_";
+  }
+  return result;
 }
 
 //define this as a plug-in

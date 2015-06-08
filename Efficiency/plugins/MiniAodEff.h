@@ -101,6 +101,7 @@ class MiniAodEff : public edm::EDAnalyzer {
   virtual void endJob() override;
   virtual void Init();  
   Double_t computeDeltaPhi(Double_t phi1, Double_t phi2);
+  string concatenate(vector<string> vstring);
 
   //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
   //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
@@ -162,11 +163,11 @@ class MiniAodEff : public edm::EDAnalyzer {
   TString _trig_pass;
   Int_t _trig_n;
   Int_t _trig_obj_n;
-  std::vector< double > _trig_obj_pt, _trig_obj_eta, _trig_obj_phi;
-  std::vector< std::string > _trig_obj_col, _trig_obj_lab;
-  std::vector< std::string > _trig_obj_path_FF, _trig_obj_path_FT, 
+  vector< double > _trig_obj_pt, _trig_obj_eta, _trig_obj_phi;
+  vector< string > _trig_obj_col, _trig_obj_lab;
+  vector< string > _trig_obj_path_FF, _trig_obj_path_FT, 
     _trig_obj_path_TF, _trig_obj_path_TT ;
-  std::vector< std::vector<int> > _trig_obj_ids;
+  vector< vector<int> > _trig_obj_ids;
 
   // Vertices
   Int_t _vtx_N, _vtx_N_stored;
