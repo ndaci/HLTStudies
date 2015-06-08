@@ -8,8 +8,6 @@ MiniAodEff::MiniAodEff(const edm::ParameterSet& pset)
 
   // Get Input parameters
   _namePaths = pset.getParameter< vector<string> >("namePaths");
-  _hltProcessName = pset.getParameter<string>("hltProcessName");
-  _trigResultsLabel = edm::InputTag("TriggerResults", "", _hltProcessName);
 
   // InputTags for tokens
   _IT_trg_bits = pset.getParameter<edm::InputTag>("bits");
@@ -24,6 +22,7 @@ MiniAodEff::MiniAodEff(const edm::ParameterSet& pset)
   _IT_jet  = pset.getParameter<edm::InputTag>("jets");
   _IT_gjet = pset.getParameter<edm::InputTag>("genjets");
   _IT_met  = pset.getParameter<edm::InputTag>("met");
+  _IT_met_filt = pset.getParameter<edm::InputTag>("metfilter");
 
   // Tokens
   trgBitsToken_      = consumes<edm::TriggerResults>(_IT_trg_bits);
@@ -38,6 +37,7 @@ MiniAodEff::MiniAodEff(const edm::ParameterSet& pset)
   jetToken_     = consumes<pat::JetCollection>(_IT_jet);
   genjetToken_  = consumes<reco::GenJetCollection>(_IT_gjet);
   metToken_     = consumes<pat::METCollection>(_IT_met);
+  metFiltToken_ = consumes<edm::TriggerResults>(_IT_met_filt);
   //
   _usePtMHT     = pset.getParameter<bool>("usePtMHT") ;
   _minPtJetHt   = pset.getParameter<double>("minPtJetHt") ; 
@@ -84,6 +84,7 @@ MiniAodEff::MiniAodEff(const edm::ParameterSet& pset)
   _tree->Branch("vtx_z",&_vtx_z,"vtx_z[vtx_N]/D");
   //
   // MET
+  _tree->Branch("met_filters","std::vector<std::string>",&_met_filters,buffersize);
   _tree->Branch("met", &_met,"met/D");  
   _tree->Branch("mht", &_mht,"mht/D");  
   _tree->Branch("metnomu", &_metnomu,"metnomu/D");  
@@ -178,6 +179,9 @@ MiniAodEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<pat::METCollection> H_met;
   iEvent.getByToken(metToken_, H_met);
 
+  edm::Handle<edm::TriggerResults> H_metfilt;
+  iEvent.getByToken(metFiltToken_, H_metfilt);
+
   // Check validity
   if(!H_trg_bits.isValid()) {
     if(_verbose>0) cout << "Missing collection : " << _IT_trg_bits << " ... skip entry !" << endl;
@@ -231,6 +235,11 @@ MiniAodEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   if(!H_met.isValid()) {
     if(_verbose>0) cout << "Missing collection : " << _IT_met << " ... skip entry !" << endl;
+    return;
+  }
+
+  if(!H_metfilt.isValid()) {
+    if(_verbose>0) cout << "Missing collection : " << _IT_met_filt << " ... skip entry !" << endl;
     return;
   }
   ////////////////////////////////////////////////////////////////////////////////////////////
@@ -401,6 +410,16 @@ MiniAodEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   // MET INFORMATION //
+  //
+  // MET Filters
+  const edm::TriggerNames & metFilters = iEvent.triggerNames(*H_metfilt);
+  for (int iHLT = 0 ; iHLT<static_cast<int>(H_metfilt->size()); ++iHLT) {	
+    if (H_metfilt->accept (iHLT)) {
+      _met_filters.push_back(metFilters.triggerName(iHLT));
+    }
+  }
+
+  // MET 4-vector
   const pat::METCollection *C_pfmet = H_met.product();
   _METP4 = (*C_pfmet)[0].p4();
 
@@ -566,6 +585,7 @@ MiniAodEff::Init()
   _met = _mht = _metnomu = _mhtnomu = 
     _met_phi = _mht_phi = _metnomu_phi = _mhtnomu_phi = 
     _met_dphi = _mht_dphi = _metnomu_dphi = _mhtnomu_dphi = 0;
+  _met_filters.clear();
   
   // Jets
   _jet_N=0;

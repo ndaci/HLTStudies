@@ -117,8 +117,6 @@ class MiniAodEff : public edm::EDAnalyzer {
 
   // Input tags
   vector<string> _namePaths;
-  string         _hltProcessName;
-  edm::InputTag  _trigResultsLabel;
 
   // InputTags for Tokens
   edm::InputTag _IT_trg_bits, _IT_trg_ps, _IT_trg_obj; 
@@ -130,6 +128,7 @@ class MiniAodEff : public edm::EDAnalyzer {
   edm::InputTag _IT_jet  ; 
   edm::InputTag _IT_gjet ; 
   edm::InputTag _IT_met  ; 
+  edm::InputTag _IT_met_filt  ; 
 
   // Tokens
   edm::EDGetTokenT<edm::TriggerResults> trgBitsToken_;
@@ -144,6 +143,7 @@ class MiniAodEff : public edm::EDAnalyzer {
   edm::EDGetTokenT<pat::JetCollection>      jetToken_;
   edm::EDGetTokenT<reco::GenJetCollection>  genjetToken_;
   edm::EDGetTokenT<pat::METCollection>      metToken_;
+  edm::EDGetTokenT<edm::TriggerResults>     metFiltToken_;
 
   Bool_t _usePtMHT;
   Double_t _minPtJetHt, _maxEtaJetHt, _minPtJetMht, _maxEtaJetMht;
@@ -178,6 +178,7 @@ class MiniAodEff : public edm::EDAnalyzer {
   Double_t _met,_mht,_metnomu,_mhtnomu,
     _met_phi,_mht_phi,_metnomu_phi,_mhtnomu_phi,
     _met_dphi,_mht_dphi,_metnomu_dphi,_mhtnomu_dphi;
+  vector<string> _met_filters;
 
   // Jets
   Int_t _jet_N;

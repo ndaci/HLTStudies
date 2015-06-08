@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 eff = cms.EDAnalyzer(
     'MiniAodEff',
     namePaths      = cms.vstring(""),
-    hltProcessName = cms.string("HLT"),
+    metfilter      = cms.InputTag("TriggerResults","","PAT"),
     bits           = cms.InputTag("TriggerResults","","HLT"),
     prescales      = cms.InputTag("patTrigger"),
     objects        = cms.InputTag("selectedPatTrigger"),
