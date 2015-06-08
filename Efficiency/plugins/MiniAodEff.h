@@ -20,6 +20,7 @@
 
 // C++ lib
 #include <memory>
+#include <sstream>
 
 // ROOT
 #include "TTree.h"
@@ -80,7 +81,7 @@
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 // others
-typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > LV ;
+typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<Double_t> > LV ;
 using namespace std;
 
 //
@@ -99,7 +100,7 @@ class MiniAodEff : public edm::EDAnalyzer {
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override;
   virtual void Init();  
-  double computeDeltaPhi(double phi1, double phi2);
+  Double_t computeDeltaPhi(Double_t phi1, Double_t phi2);
 
   //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
   //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
@@ -109,9 +110,10 @@ class MiniAodEff : public edm::EDAnalyzer {
   // ----------member data ---------------------------
 
   // "global" variables
-  int _verbose;
+  Int_t _verbose;
   const UInt_t _nJ=3;
   const UInt_t _nV=3;
+  const UInt_t _nObj=1000;
 
   // Input tags
   vector<string> _namePaths;
@@ -143,8 +145,8 @@ class MiniAodEff : public edm::EDAnalyzer {
   edm::EDGetTokenT<reco::GenJetCollection>  genjetToken_;
   edm::EDGetTokenT<pat::METCollection>      metToken_;
 
-  bool _usePtMHT;
-  double _minPtJetHt, _maxEtaJetHt, _minPtJetMht, _maxEtaJetMht;
+  Bool_t _usePtMHT;
+  Double_t _minPtJetHt, _maxEtaJetHt, _minPtJetMht, _maxEtaJetMht;
 
   // To fill the tree
 
@@ -155,30 +157,34 @@ class MiniAodEff : public edm::EDAnalyzer {
   TTree* _tree;
 
   // Global quantities
-  int _nEvent, _nRun, _nLumi, _nJet;
+  Int_t _nEvent, _nRun, _nLumi, _nJet;
 
   // Trigger info
   TString _trig_pass;
-  int _trig_n;
-  //std::vector< pat::TriggerObjectStandAlone > *_trig_obj;
-  TClonesArray* _trig_obj ;
+  Int_t _trig_n;
+  Int_t _trig_obj_n;
+  Double_t _trig_obj_pt[1000], _trig_obj_eta[1000], _trig_obj_phi[1000];
+  std::vector< std::string >         _trig_obj_col;
+  std::vector< std::vector<string> > _trig_obj_lab;
+  std::vector< std::vector<int> >    _trig_obj_ids;
+  std::vector< std::vector<string> > _trig_obj_path;
+  std::vector< std::vector<int> >    _trig_obj_level;
 
   // Vertices
-  int _vtx_N, _vtx_N_stored;
-  double _vtx_x[3], _vtx_y[3], _vtx_z[3];
-  double _vtx_normalizedChi2[3], _vtx_ndof[3], _vtx_nTracks[3], _vtx_d0[3];
+  Int_t _vtx_N, _vtx_N_stored;
+  Double_t _vtx_x[3], _vtx_y[3], _vtx_z[3];
+  Double_t _vtx_normalizedChi2[3], _vtx_ndof[3], _vtx_nTracks[3], _vtx_d0[3];
 
   // MET
-  double _met,_mht,_metnomu,_mhtnomu,
-    _met_eta,_mht_eta,_metnomu_eta,_mhtnomu_eta,
+  Double_t _met,_mht,_metnomu,_mhtnomu,
     _met_phi,_mht_phi,_metnomu_phi,_mhtnomu_phi,
     _met_dphi,_mht_dphi,_metnomu_dphi,_mhtnomu_dphi;
 
   // Jets
-  int _jet_mult_ch[3], _jet_mult_mu[3], _jet_mult_ne[3]; // multiplicities
-  double _jet_eta[3], _jet_phi[3], _jet_pt[3], _jet_e[3], _jet_m[3];
-  double _jet_efrac_ne_Had[3], _jet_efrac_ne_EM[3]; // neutral energy fractions
-  double _jet_efrac_ch_Had[3], _jet_efrac_ch_EM[3], _jet_efrac_ch_Mu[3]; // charged energy fractions
+  Int_t _jet_mult_ch[3], _jet_mult_mu[3], _jet_mult_ne[3]; // multiplicities
+  Double_t _jet_eta[3], _jet_phi[3], _jet_pt[3], _jet_e[3], _jet_m[3];
+  Double_t _jet_efrac_ne_Had[3], _jet_efrac_ne_EM[3]; // neutral energy fractions
+  Double_t _jet_efrac_ch_Had[3], _jet_efrac_ch_EM[3], _jet_efrac_ch_Mu[3]; // charged energy fractions
   
 };
 

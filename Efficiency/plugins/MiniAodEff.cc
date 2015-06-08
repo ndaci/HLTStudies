@@ -49,6 +49,7 @@ MiniAodEff::MiniAodEff(const edm::ParameterSet& pset)
   Init();
   edm::Service<TFileService> fs ;
   _tree = fs->make <TTree>("HLTStudies","MiniAodEff");
+  Int_t buffersize = 32000; // trig_obj vectors
 
   // Event
   _tree->Branch("nEvent",&_nEvent,"nEvent/I");
@@ -58,11 +59,18 @@ MiniAodEff::MiniAodEff(const edm::ParameterSet& pset)
   // Trigger
   _tree->Branch("trig_pass",&_trig_pass);
   _tree->Branch("trig_n",&_trig_n,"trig_n/I");  
+  //
+  _tree->Branch("trig_obj_n",&_trig_obj_n,"trig_obj_n/I");
+  _tree->Branch("trig_obj_pt",&_trig_obj_pt,"trig_obj_pt[trig_obj_n]/D");
+  _tree->Branch("trig_obj_eta",&_trig_obj_eta,"trig_obj_eta[trig_obj_n]/D");
+  _tree->Branch("trig_obj_phi",&_trig_obj_phi,"trig_obj_phi[trig_obj_n]/D");
+  //
+  _tree->Branch("trig_obj_col","std::vector<std::string>",&_trig_obj_col,buffersize);
+  _tree->Branch("trig_obj_lab","std::vector<std::vector<std::string>>",&_trig_obj_lab,buffersize);
+  _tree->Branch("trig_obj_path","std::vector<std::vector<std::string>>",&_trig_obj_path,buffersize);
+  _tree->Branch("trig_obj_ids","std::vector<std::vector<std::int>>",&_trig_obj_ids,buffersize);
+  _tree->Branch("trig_obj_level","std::vector<std::vector<std::int>>",&_trig_obj_level,buffersize);
 
-  //_trig_obj = new std::vector< pat::TriggerObjectStandAlone >;
-  //_tree->Branch("trig_obj", "std::vector< pat::TriggerObjectStandAlone >", &_trig_obj); // trigger objects
-  _trig_obj = new TClonesArray("pat::TriggerObjectStandAlone",10000);
-  _tree->Branch("trig_obj", &_trig_obj); // trigger objects
   //
   // Vertices
   _tree->Branch("vtx_N",&_vtx_N,"vtx_N/I");
@@ -79,10 +87,6 @@ MiniAodEff::MiniAodEff(const edm::ParameterSet& pset)
   _tree->Branch("mht", &_mht,"mht/D");  
   _tree->Branch("metnomu", &_metnomu,"metnomu/D");  
   _tree->Branch("mhtnomu", &_mhtnomu,"mhtnomu/D");  
-  _tree->Branch("met_eta", &_met_eta,"met_eta/D");  
-  _tree->Branch("mht_eta", &_mht_eta,"mht_eta/D");  
-  _tree->Branch("metnomu_eta", &_metnomu_eta,"metnomu_eta/D");  
-  _tree->Branch("mhtnomu_eta", &_mhtnomu_eta,"mhtnomu_eta/D");  
   _tree->Branch("met_phi", &_met_phi,"met_phi/D");  
   _tree->Branch("mht_phi", &_mht_phi,"mht_phi/D");  
   _tree->Branch("metnomu_phi", &_metnomu_phi,"metnomu_phi/D");  
@@ -121,8 +125,6 @@ MiniAodEff::~MiniAodEff()
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
   
-  _trig_obj->Delete();
-
 }
 
 
@@ -135,20 +137,22 @@ void
 MiniAodEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
+  // Initialize //
+  Init();
+
   // Get collections //
+
   // Trigger
-  edm::Handle<edm::TriggerResults> H_trig;
-  iEvent.getByLabel(_trigResultsLabel, H_trig);
-  
-  edm::Handle<edm::TriggerResults> triggerBits;
-  iEvent.getByToken(trgBitsToken_, triggerBits);
+  edm::Handle<edm::TriggerResults> H_trg_bits;
+  iEvent.getByToken(trgBitsToken_, H_trg_bits);
 
-  edm::Handle<pat::TriggerObjectStandAloneCollection> triggerObjects;
-  iEvent.getByToken(trgObjectsToken_, triggerObjects);
+  edm::Handle<pat::TriggerObjectStandAloneCollection> H_trg_obj;
+  iEvent.getByToken(trgObjectsToken_, H_trg_obj);
 
-  edm::Handle<pat::PackedTriggerPrescales> triggerPrescales;
-  iEvent.getByToken(trgPrescalesToken_, triggerPrescales);
+  edm::Handle<pat::PackedTriggerPrescales> H_trg_ps;
+  iEvent.getByToken(trgPrescalesToken_, H_trg_ps);
 
+  // Objects
   edm::Handle<reco::VertexCollection> H_vert;
   iEvent.getByToken(vtxToken_, H_vert);
   
@@ -174,8 +178,18 @@ MiniAodEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByToken(metToken_, H_met);
 
   // Check validity
-  if(!H_trig.isValid()) {
-    if(_verbose>0) cout << "Missing collection : " << _trigResultsLabel << " ... skip entry !" << endl;
+  if(!H_trg_bits.isValid()) {
+    if(_verbose>0) cout << "Missing collection : " << _IT_trg_bits << " ... skip entry !" << endl;
+    return;
+  }
+
+  if(!H_trg_obj.isValid()) {
+    if(_verbose>0) cout << "Missing collection : " << _IT_trg_obj << " ... skip entry !" << endl;
+    return;
+  }
+
+  if(!H_trg_ps.isValid()) {
+    if(_verbose>0) cout << "Missing collection : " << _IT_trg_ps << " ... skip entry !" << endl;
     return;
   }
 
@@ -229,10 +243,10 @@ MiniAodEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   _trig_pass = "";
   _trig_n    = 0;
   TString path="";
-  // loop over H_trig
-  const edm::TriggerNames & triggerNames = iEvent.triggerNames(*H_trig);
-  for (int iHLT = 0 ; iHLT<static_cast<int>(H_trig->size()); ++iHLT) {	
-    if (H_trig->accept (iHLT)) {
+
+  const edm::TriggerNames & triggerNames = iEvent.triggerNames(*H_trg_bits);
+  for (int iHLT = 0 ; iHLT<static_cast<int>(H_trg_bits->size()); ++iHLT) {	
+    if (H_trg_bits->accept (iHLT)) {
       path = TString(triggerNames.triggerName(iHLT));
       _trig_pass += "_%_"+path ;
       _trig_n++ ;
@@ -240,33 +254,63 @@ MiniAodEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   // TRIGGER OBJECTS //
-  _trig_obj->Clear();
   UInt_t iTrgObj=0;
-  for (pat::TriggerObjectStandAlone obj : *triggerObjects) { // note: not "const &" since we want to call unpackPathNames
+  string trgColl;
+  vector<int> trgIds, trgLevel;
+  vector<string> trgFilt, pathNamesAll, pathNamesLast;
 
-    //_trig_obj->push_back(obj);
-    new( (*_trig_obj)[iTrgObj] ) pat::TriggerObjectStandAlone(obj);
-    iTrgObj++ ;
+  cout << "$$$ SIZE OF H_trg_obj = " 
+       << H_trg_obj->size()
+       << " $$$" << endl;
+
+  for (pat::TriggerObjectStandAlone obj : *H_trg_obj) { // note: not "const &" since we want to call unpackPathNames
 
     obj.unpackPathNames(triggerNames);
 
+    // pt,eta,phi
     cout << "\tTrigger object:  pt " << obj.pt() << ", eta " << obj.eta() << ", phi " << obj.phi() << endl;
-    // Print trigger object collection and type
-    cout << "\t   Collection: " << obj.collection() << endl;
+    //
+    _trig_obj_pt[iTrgObj]  = obj.pt();
+    _trig_obj_eta[iTrgObj] = obj.eta();
+    _trig_obj_phi[iTrgObj] = obj.phi();
+
+    // Collection
+    trgColl = obj.collection();
+    cout << "\t   Collection: " << trgColl << endl;
+    //
+    _trig_obj_col.push_back(trgColl);
+
+    // Trigger Filter Ids
     cout << "\t   Type IDs:   ";
-    for (unsigned h = 0; h < obj.filterIds().size(); ++h) cout << " " << obj.filterIds()[h] ;
+    trgIds = obj.filterIds();
+    //
+    _trig_obj_ids.push_back(trgIds);
+    //
+    for (unsigned h = 0; h < trgIds.size(); ++h) {
+      cout << " " << trgIds[h] ;
+    }
     cout << endl;
-    // Print associated trigger filters
+
+    // Trigger filters
     cout << "\t   Filters:    ";
-    for (unsigned h = 0; h < obj.filterLabels().size(); ++h) cout << " " << obj.filterLabels()[h];
+    trgFilt = obj.filterLabels();
+    //
+    _trig_obj_lab.push_back(trgFilt);
+    //
+    for (unsigned h = 0; h < trgFilt.size(); ++h) {
+      cout << " " << trgFilt[h];
+    }
     cout << endl;
-    vector<string> pathNamesAll  = obj.pathNames(false);
-    vector<string> pathNamesLast = obj.pathNames(true);
-    // Print all trigger paths, for each one record also if the object is associated to a 'l3' filter (always true for the
-    // definition used in the PAT trigger producer) and if it's associated to the last filter of a successfull path (which
-    // means that this object did cause this trigger to succeed; however, it doesn't work on some multi-object triggers)
+
+    // Trigger paths
+    pathNamesAll  = obj.pathNames(false,false);
+    pathNamesLast = obj.pathNames(true,true);
     cout << "\t   Paths (" << pathNamesAll.size()<<"/"<<pathNamesLast.size()<<"):    ";
+    //
+    _trig_obj_path.push_back(pathNamesAll);
+
     for (unsigned h = 0, n = pathNamesAll.size(); h < n; ++h) {
+
       bool isBoth = obj.hasPathName( pathNamesAll[h], true, true ); 
       bool isL3   = obj.hasPathName( pathNamesAll[h], false, true ); 
       bool isLF   = obj.hasPathName( pathNamesAll[h], true, false ); 
@@ -278,7 +322,31 @@ MiniAodEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (isNone && !isBoth && !isL3 && !isLF) cout << "(*,*)";
     }
     cout << endl;
+
+    /*
+    for (unsigned h = 0, n = pathNamesLast.size(); h < n; ++h) {
+      _trig_obj_last[iTrgObj] += "_%_"+TString(pathNamesLast[h]);
+    }
+    */
+    
+    // Clear vectors
+    trgIds.clear();
+    trgFilt.clear(); 
+    pathNamesAll.clear(); 
+    pathNamesLast.clear();
+
+    // Increment trigger object index
+    iTrgObj++ ;
+    if(iTrgObj >= _nObj) break;
   }  
+
+  // Check size vstring
+  cout << "$$$ SIZE OF _trig_obj_col_vstring = " 
+       << _trig_obj_col_vstring.size() 
+       << " $$$" << endl;
+
+  // Record number of objects
+  _trig_obj_n = iTrgObj;
 
   /////////////////////
 
@@ -408,22 +476,18 @@ MiniAodEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // Flat values
   _met     = _METP4.Et();
-  _met_eta = _METP4.Eta();
   _met_phi = _METP4.Phi();
   _met_dphi= computeDeltaPhi( _met_phi , _jet_phi[0] );
   //
   _metnomu     = _METNoMuP4.Et();
-  _metnomu_eta = _METNoMuP4.Eta();
   _metnomu_phi = _METNoMuP4.Phi();
   _metnomu_dphi= computeDeltaPhi( _metnomu_phi , _jet_phi[0] );
   //
   _mht     = _MHTP4.Et();
-  _mht_eta = _MHTP4.Eta();
   _mht_phi = _MHTP4.Phi();
   _mht_dphi= computeDeltaPhi( _mht_phi , _jet_phi[0] );
   //
   _mhtnomu     = _MHTNoMuP4.Et();
-  _mhtnomu_eta = _MHTNoMuP4.Eta();
   _mhtnomu_phi = _MHTNoMuP4.Phi();
   _mhtnomu_dphi= computeDeltaPhi( _mhtnomu_phi , _jet_phi[0] );
 
@@ -493,22 +557,24 @@ MiniAodEff::Init()
 {
 
   _verbose = 1;
-  //_nJ=3;
-  //_nV=3;
 
-  _nEvent = _nRun = _nLumi = 0;
+  _nEvent = _nRun = _nLumi = _nJet = 0;
   _trig_pass = "";
   _trig_n = 0;
-  //_trig_obj = new vector< pat::TriggerObjectStandAlone >;
 
-  // MET
-  _met = _mht = _metnomu = _mhtnomu = 
-    _met_eta = _mht_eta = _metnomu_eta = _mhtnomu_eta = 
-    _met_phi = _mht_phi = _metnomu_phi = _mhtnomu_phi = 
-    _met_dphi = _mht_dphi = _metnomu_dphi = _mhtnomu_dphi = 0;
-  
+  _trig_obj_n = 0;
+  for(UInt_t i=0 ; i<100 ; i++) {
+    _trig_obj_pt[i] = _trig_obj_eta[i] = _trig_obj_phi[i] = -999;
+  }
+
+  _trig_obj_col.clear();
+  _trig_obj_lab.clear();
+  _trig_obj_ids.clear();
+  _trig_obj_path.clear();
+  _trig_obj_level.clear();
+
   // Vertices
-  _vtx_N = 0; 
+  _vtx_N = _vtx_N_stored = 0; 
   for(UInt_t iv=0;iv<_nV;iv++) {
     _vtx_normalizedChi2[iv] = 0.;
     _vtx_ndof[iv] = 0.;
@@ -518,6 +584,12 @@ MiniAodEff::Init()
     _vtx_y[iv] = 0.;
     _vtx_z[iv] = 0.;
   }
+
+  // MET
+  _met = _mht = _metnomu = _mhtnomu = 
+    _met_phi = _mht_phi = _metnomu_phi = _mhtnomu_phi = 
+    _met_dphi = _mht_dphi = _metnomu_dphi = _mhtnomu_dphi = 0;
+  
 
   // Jets
   for(UInt_t i=0 ; i<_nJ ; i++) {
