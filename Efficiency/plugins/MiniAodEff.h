@@ -113,7 +113,6 @@ class MiniAodEff : public edm::EDAnalyzer {
   Int_t _verbose;
   const UInt_t _nJ=3;
   const UInt_t _nV=3;
-  const UInt_t _nObj=1000;
 
   // Input tags
   vector<string> _namePaths;
@@ -163,7 +162,8 @@ class MiniAodEff : public edm::EDAnalyzer {
   TString _trig_pass;
   Int_t _trig_n;
   Int_t _trig_obj_n;
-  Double_t _trig_obj_pt[1000], _trig_obj_eta[1000], _trig_obj_phi[1000];
+  //Double_t _trig_obj_pt[1000], _trig_obj_eta[1000], _trig_obj_phi[1000];
+  std::vector< double > _trig_obj_pt, _trig_obj_eta, _trig_obj_phi;
   std::vector< std::string >         _trig_obj_col;
   std::vector< std::vector<string> > _trig_obj_lab;
   std::vector< std::vector<int> >    _trig_obj_ids;

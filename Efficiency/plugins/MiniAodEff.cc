@@ -61,15 +61,14 @@ MiniAodEff::MiniAodEff(const edm::ParameterSet& pset)
   _tree->Branch("trig_n",&_trig_n,"trig_n/I");  
   //
   _tree->Branch("trig_obj_n",&_trig_obj_n,"trig_obj_n/I");
-  _tree->Branch("trig_obj_pt",&_trig_obj_pt,"trig_obj_pt[trig_obj_n]/D");
-  _tree->Branch("trig_obj_eta",&_trig_obj_eta,"trig_obj_eta[trig_obj_n]/D");
-  _tree->Branch("trig_obj_phi",&_trig_obj_phi,"trig_obj_phi[trig_obj_n]/D");
-  //
+  _tree->Branch("trig_obj_pt","std::vector<double>",&_trig_obj_pt,buffersize);
+  _tree->Branch("trig_obj_eta","std::vector<double>",&_trig_obj_eta,buffersize);
+  _tree->Branch("trig_obj_phi","std::vector<double>",&_trig_obj_phi,buffersize);
   _tree->Branch("trig_obj_col","std::vector<std::string>",&_trig_obj_col,buffersize);
-  _tree->Branch("trig_obj_lab","std::vector<std::vector<std::string>>",&_trig_obj_lab,buffersize);
-  _tree->Branch("trig_obj_path","std::vector<std::vector<std::string>>",&_trig_obj_path,buffersize);
   _tree->Branch("trig_obj_ids","std::vector<std::vector<std::int>>",&_trig_obj_ids,buffersize);
   _tree->Branch("trig_obj_level","std::vector<std::vector<std::int>>",&_trig_obj_level,buffersize);
+  //_tree->Branch("trig_obj_lab","std::vector<std::vector<std::string>>",&_trig_obj_lab,buffersize);
+  //_tree->Branch("trig_obj_path","std::vector<std::vector<std::string>>",&_trig_obj_path,buffersize);
 
   //
   // Vertices
@@ -243,7 +242,7 @@ MiniAodEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   _trig_pass = "";
   _trig_n    = 0;
   TString path="";
-
+  //
   const edm::TriggerNames & triggerNames = iEvent.triggerNames(*H_trg_bits);
   for (int iHLT = 0 ; iHLT<static_cast<int>(H_trg_bits->size()); ++iHLT) {	
     if (H_trg_bits->accept (iHLT)) {
@@ -254,7 +253,6 @@ MiniAodEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   // TRIGGER OBJECTS //
-  UInt_t iTrgObj=0;
   string trgColl;
   vector<int> trgIds, trgLevel;
   vector<string> trgFilt, pathNamesAll, pathNamesLast;
@@ -270,9 +268,9 @@ MiniAodEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     // pt,eta,phi
     cout << "\tTrigger object:  pt " << obj.pt() << ", eta " << obj.eta() << ", phi " << obj.phi() << endl;
     //
-    _trig_obj_pt[iTrgObj]  = obj.pt();
-    _trig_obj_eta[iTrgObj] = obj.eta();
-    _trig_obj_phi[iTrgObj] = obj.phi();
+    _trig_obj_pt.push_back( obj.pt());
+    _trig_obj_eta.push_back(obj.eta());
+    _trig_obj_phi.push_back(obj.phi());
 
     // Collection
     trgColl = obj.collection();
@@ -311,10 +309,17 @@ MiniAodEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     for (unsigned h = 0, n = pathNamesAll.size(); h < n; ++h) {
 
-      bool isBoth = obj.hasPathName( pathNamesAll[h], true, true ); 
+      bool isNone = obj.hasPathName( pathNamesAll[h], false, false ); 
       bool isL3   = obj.hasPathName( pathNamesAll[h], false, true ); 
       bool isLF   = obj.hasPathName( pathNamesAll[h], true, false ); 
-      bool isNone = obj.hasPathName( pathNamesAll[h], false, false ); 
+      bool isBoth = obj.hasPathName( pathNamesAll[h], true, true ); 
+
+      if(isNone)      trgLevel.push_back(0);
+      else if(isL3)   trgLevel.push_back(1);
+      else if(isLF)   trgLevel.push_back(10);
+      else if(isBoth) trgLevel.push_back(11);
+      else            trgLevel.push_back(-1);
+
       cout << "   " << pathNamesAll[h];
       if (isBoth) cout << "(L,3)";
       if (isL3 && !isBoth) cout << "(*,3)";
@@ -322,26 +327,19 @@ MiniAodEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (isNone && !isBoth && !isL3 && !isLF) cout << "(*,*)";
     }
     cout << endl;
+    //
+    _trig_obj_level.push_back(trgLevel);
 
-    /*
-    for (unsigned h = 0, n = pathNamesLast.size(); h < n; ++h) {
-      _trig_obj_last[iTrgObj] += "_%_"+TString(pathNamesLast[h]);
-    }
-    */
-    
     // Clear vectors
     trgIds.clear();
+    trgLevel.clear();
     trgFilt.clear(); 
     pathNamesAll.clear(); 
     pathNamesLast.clear();
 
     // Increment trigger object index
-    iTrgObj++ ;
-    if(iTrgObj >= _nObj) break;
+    _trig_obj_n++ ;
   }  
-
-  // Record number of objects
-  _trig_obj_n = iTrgObj;
 
   /////////////////////
 
@@ -552,16 +550,15 @@ MiniAodEff::Init()
 {
 
   _verbose = 1;
-
   _nEvent = _nRun = _nLumi = _nJet = 0;
+
+  // Trigger
   _trig_pass = "";
   _trig_n = 0;
-
   _trig_obj_n = 0;
-  for(UInt_t i=0 ; i<100 ; i++) {
-    _trig_obj_pt[i] = _trig_obj_eta[i] = _trig_obj_phi[i] = -999;
-  }
-
+  _trig_obj_pt.clear();
+  _trig_obj_eta.clear();
+  _trig_obj_phi.clear();
   _trig_obj_col.clear();
   _trig_obj_lab.clear();
   _trig_obj_ids.clear();
