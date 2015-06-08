@@ -162,13 +162,11 @@ class MiniAodEff : public edm::EDAnalyzer {
   TString _trig_pass;
   Int_t _trig_n;
   Int_t _trig_obj_n;
-  //Double_t _trig_obj_pt[1000], _trig_obj_eta[1000], _trig_obj_phi[1000];
   std::vector< double > _trig_obj_pt, _trig_obj_eta, _trig_obj_phi;
-  std::vector< std::string >         _trig_obj_col;
-  std::vector< std::vector<string> > _trig_obj_lab;
-  std::vector< std::vector<int> >    _trig_obj_ids;
-  std::vector< std::vector<string> > _trig_obj_path;
-  std::vector< std::vector<int> >    _trig_obj_level;
+  std::vector< std::string > _trig_obj_col, _trig_obj_lab;
+  std::vector< std::string > _trig_obj_path_FF, _trig_obj_path_FT, 
+    _trig_obj_path_TF, _trig_obj_path_TT ;
+  std::vector< std::vector<int> > _trig_obj_ids;
 
   // Vertices
   Int_t _vtx_N, _vtx_N_stored;
