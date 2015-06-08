@@ -5,7 +5,7 @@ process = cms.Process("EFF")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
 tag=""
 for i in range(0,len(sys.argv)):
@@ -20,19 +20,19 @@ process.source = cms.Source("PoolSource",
     )
 )
 
-from list_MonojetM1AV_r731_i731HLT1_V13b_14e33_cff    import *
-from list_MonojetM1AV_r731_i731HLT1_V13c_14e33_cff    import *
-from list_MonojetM1AV_r731_i731HLT1_V13d_14e33_v1_cff import *
-from list_MonojetM1AV_r731_i731HLT1_V13b_7e33_V2_cff  import *
-from list_MonojetM1AV_r731_i731HLT1_V13b_5e33_V3_cff  import *
-from list_MonojetM1AV_r731_i731HLT1_V13_7e33_V2_cff   import *
-from list_files_DYMuMu_EDM_r731_i731HLT1_V13b_5e33_v5_cff import *
-from list_files_DYMuMu_EDM_r731_i731HLT1_V13b_7e33_v5_cff import *
-from list_files_DYMuMu_EDM_r731_i731HLT1_V13c_14e33_cff import *
-from list_MonojetM10AV_r740p8_i740p7HLT1_V8_14e33_v5_cff import *
-from list_MonojetM10AV_r740p8_i740p7HLT1_V8_7e33_v5_cff import *
-from list_MonojetM1AV_r740p8_i740p7HLT1_V8_5e33_v5_cff import *
-#from list_MonojetM1AV_r740p8_i740p7HLT1_V8_14e33_v7_cff import *
+from HLTStudies.Efficiency.list_MonojetM1AV_r731_i731HLT1_V13b_14e33_cff    import *
+from HLTStudies.Efficiency.list_MonojetM1AV_r731_i731HLT1_V13c_14e33_cff    import *
+from HLTStudies.Efficiency.list_MonojetM1AV_r731_i731HLT1_V13d_14e33_v1_cff import *
+from HLTStudies.Efficiency.list_MonojetM1AV_r731_i731HLT1_V13b_7e33_V2_cff  import *
+from HLTStudies.Efficiency.list_MonojetM1AV_r731_i731HLT1_V13b_5e33_V3_cff  import *
+from HLTStudies.Efficiency.list_MonojetM1AV_r731_i731HLT1_V13_7e33_V2_cff   import *
+from HLTStudies.Efficiency.list_files_DYMuMu_EDM_r731_i731HLT1_V13b_5e33_v5_cff import *
+from HLTStudies.Efficiency.list_files_DYMuMu_EDM_r731_i731HLT1_V13b_7e33_v5_cff import *
+from HLTStudies.Efficiency.list_files_DYMuMu_EDM_r731_i731HLT1_V13c_14e33_cff import *
+from HLTStudies.Efficiency.list_MonojetM10AV_r740p8_i740p7HLT1_V8_14e33_v5_cff import *
+from HLTStudies.Efficiency.list_MonojetM10AV_r740p8_i740p7HLT1_V8_7e33_v5_cff import *
+from HLTStudies.Efficiency.list_MonojetM1AV_r740p8_i740p7HLT1_V8_5e33_v5_cff import *
+#from HLTStudies.Efficiency.list_MonojetM1AV_r740p8_i740p7HLT1_V8_14e33_v7_cff import *
 
 #if   tag=="M1_74X_V8_14e33_v7":
 #    process.source = source_M1_74X_V8_14e33_v7
