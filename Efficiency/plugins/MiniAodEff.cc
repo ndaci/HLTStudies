@@ -340,11 +340,6 @@ MiniAodEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     if(iTrgObj >= _nObj) break;
   }  
 
-  // Check size vstring
-  cout << "$$$ SIZE OF _trig_obj_col_vstring = " 
-       << _trig_obj_col_vstring.size() 
-       << " $$$" << endl;
-
   // Record number of objects
   _trig_obj_n = iTrgObj;
 
