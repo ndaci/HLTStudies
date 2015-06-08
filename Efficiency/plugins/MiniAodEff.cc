@@ -348,7 +348,7 @@ MiniAodEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   /////////////////////
 
   // VERTICES //
-  /*
+
   int vtx_counter=0;
   _vtx_N = H_vert->size();
   _vtx_N_stored = _nV;
@@ -356,22 +356,6 @@ MiniAodEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   // select the primary vertex as the one with higest sum of (pt)^2 of tracks                                                                               
   PrimaryVertexSorter PVSorter;
   std::vector<reco::Vertex> sortedVertices = PVSorter.sortedList( *(H_vert.product()) );
-
-  if(_vtx_N > 0) {
-    GlobalPoint local_vertexPosition(sortedVertices.front().position().x(),
-				     sortedVertices.front().position().y(),
-				     sortedVertices.front().position().z());
-    _vertexPosition = local_vertexPosition;
-  }
-  else {
-
-  //GlobalPoint local_vertexPosition(bs.position().x(),
-  //				     bs.position().y(),
-  //				     bs.position().z());
-
-    GlobalPoint local_vertexPosition(0.,0.,0.);
-    _vertexPosition = local_vertexPosition;
-  }
 
   for( std::vector<reco::Vertex>::const_iterator PV = sortedVertices.begin(); PV != sortedVertices.end(); ++PV){
     if(vtx_counter > int(_nV)) break;
@@ -386,7 +370,6 @@ MiniAodEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		
     vtx_counter++;
   } // for loop on primary vertices
-*/
 
   // STORE JET INFORMATION //
   // Loop over PFJets where theJet is a pointer to a PFJet
