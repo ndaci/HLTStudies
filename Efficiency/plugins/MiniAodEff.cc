@@ -238,10 +238,10 @@ MiniAodEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     return;
   }
 
-  if(!H_metfilt.isValid()) {
-    if(_verbose>0) cout << "Missing collection : " << _IT_met_filt << " ... skip entry !" << endl;
-    return;
-  }
+  //  if(!H_metfilt.isValid()) {
+
+    //return;
+  //}
   ////////////////////////////////////////////////////////////////////////////////////////////
 
   // GLOBAL EVENT INFORMATIONS //
@@ -412,13 +412,21 @@ MiniAodEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   // MET INFORMATION //
   //
   // MET Filters
-  const edm::TriggerNames & metFilters = iEvent.triggerNames(*H_metfilt);
-  for (int iHLT = 0 ; iHLT<static_cast<int>(H_metfilt->size()); ++iHLT) {	
-    if (H_metfilt->accept (iHLT)) {
-      _met_filters.push_back(metFilters.triggerName(iHLT));
+  cout << "MET Filters : " ;
+  edm::TriggerNames metFilters;
+  if(H_metfilt.isValid()) {
+    metFilters = iEvent.triggerNames(*H_metfilt);
+    for (int iHLT = 0 ; iHLT<static_cast<int>(H_metfilt->size()); ++iHLT) {	
+      if (H_metfilt->accept (iHLT)) {
+	_met_filters.push_back(metFilters.triggerName(iHLT));
+	cout << "   " << metFilters.triggerName(iHLT);
+      }
     }
   }
-
+  else if(_verbose>0) {
+    cout << "Missing collection : " << _IT_met_filt << " ... skip entry !" << endl;  
+  }
+  
   // MET 4-vector
   const pat::METCollection *C_pfmet = H_met.product();
   _METP4 = (*C_pfmet)[0].p4();
