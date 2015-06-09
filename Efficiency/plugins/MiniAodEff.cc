@@ -8,6 +8,7 @@ MiniAodEff::MiniAodEff(const edm::ParameterSet& pset)
 
   // Get Input parameters
   _namePaths = pset.getParameter< vector<string> >("namePaths");
+  _verbose   = pset.getParameter< int >("verbose");
 
   // InputTags for tokens
   _IT_trg_bits = pset.getParameter<edm::InputTag>("bits");
@@ -586,7 +587,6 @@ void
 MiniAodEff::Init()
 {
 
-  _verbose = 1;
   _nEvent = _nRun = _nLumi = 0;
 
   // Trigger
