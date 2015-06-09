@@ -267,6 +267,8 @@ MiniAodEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   string trgColl,trgFiltStr,trgPathsFFStr;
   vector<int> trgIds;
   vector<string> trgFilt, trgPathsFF, trgPathsFT, trgPathsTF, trgPathsTT;
+  bool isNone, isL3, isLF, isBoth;
+  isNone = isL3 = isLF = isBoth = false;
 
   cout << "$$$ SIZE OF H_trg_obj = " 
        << H_trg_obj->size()
@@ -328,10 +330,10 @@ MiniAodEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       trgPathsFFStr += trgPathsFF[h]+"_%_";      
 
-      bool isNone = obj.hasPathName( trgPathsFF[h], false, false ); 
-      bool isL3   = obj.hasPathName( trgPathsFF[h], false, true ); 
-      bool isLF   = obj.hasPathName( trgPathsFF[h], true, false ); 
-      bool isBoth = obj.hasPathName( trgPathsFF[h], true, true ); 
+      isNone = obj.hasPathName( trgPathsFF[h], false, false ); 
+      isL3   = obj.hasPathName( trgPathsFF[h], false, true ); 
+      isLF   = obj.hasPathName( trgPathsFF[h], true, false ); 
+      isBoth = obj.hasPathName( trgPathsFF[h], true, true ); 
 
       cout << "   " << trgPathsFF[h];
       if (isBoth) cout << "(L,3)";
@@ -380,12 +382,12 @@ MiniAodEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     vtx_counter++;
   } // for loop on primary vertices
 
-  // STORE JET INFORMATION //
-  // Loop over PFJets where theJet is a pointer to a PFJet
-  // loop only over 3 highest-pt jets
-  //
+  /////////////////////
+
+  // JETS //
+
   _jet_N = H_jets->size();
-  //
+
   for (pat::JetCollection::const_iterator theJet = H_jets->begin(); theJet != H_jets->end(); ++theJet){
 
     // Kinematics
@@ -409,8 +411,10 @@ MiniAodEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   }
 
-  // MET INFORMATION //
-  //
+  /////////////////////
+
+  // MET //
+
   // MET Filters
   cout << "MET Filters : " ;
   edm::TriggerNames metFilters;
@@ -469,9 +473,6 @@ MiniAodEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     mhy_nomu += theMu->py();
   }
 
-  //if (nj_ht < minNJetHt_ ) { ht = 0; }
-  //if (nj_mht < minNJetMht_) { mhx = 0; mhy = 0; }
-
   // 4-vectors
   _METNoMuP4 = LV(mex_nomu, mey_nomu, 0, sqrt(mex_nomu*mex_nomu + mey_nomu*mey_nomu));
   _MHTNoMuP4 = LV(mhx_nomu, mhy_nomu, 0, sqrt(mhx_nomu*mhx_nomu + mhy_nomu*mhy_nomu));
@@ -494,7 +495,24 @@ MiniAodEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   _mhtnomu_phi = _MHTNoMuP4.Phi();
   _mhtnomu_dphi= computeDeltaPhi( _mhtnomu_phi , _jet_phi[0] );
 
-  
+  /////////////////////
+
+  // LEPTONS //
+  _nphotons   = H_pho->size();
+  _nelectrons = H_ele->size();
+  _nmuons     = H_mu->size();
+  //
+  _ntaus = 0;
+  for (pat::TauCollection::const_iterator taus_iter = H_tau->begin(); taus_iter != H_tau->end(); ++taus_iter) {
+    if( taus_iter->pt() <= 20) continue; 
+    if( fabs(taus_iter->eta()) >= 2.3) continue;
+    if( taus_iter->tauID("decayModeFinding") <= 0.5) continue;
+    if( taus_iter->tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits") <= 0.5) continue;
+    _ntaus++;
+  }  
+
+  /////////////////////
+
   // FILL TREE //
   _tree->Fill();
 
@@ -610,6 +628,10 @@ MiniAodEff::Init()
   _jet_efrac_ch_Had.clear() ; 
   _jet_efrac_ch_EM.clear() ; 
   _jet_efrac_ch_Mu.clear() ;
+
+  // Leptons/Photons
+  _nphotons = _nelectrons = _nmuons = _ntaus = 0;
+
 
 }
 

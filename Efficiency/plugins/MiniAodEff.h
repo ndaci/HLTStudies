@@ -186,7 +186,10 @@ class MiniAodEff : public edm::EDAnalyzer {
   vector<double> _jet_eta, _jet_phi, _jet_pt, _jet_e, _jet_m;
   vector<double> _jet_efrac_ne_Had, _jet_efrac_ne_EM; // neutral energy fractions
   vector<double> _jet_efrac_ch_Had, _jet_efrac_ch_EM, _jet_efrac_ch_Mu; // charged energy fractions
-  
+
+  // Leptons/Photons
+  Int_t _nphotons, _nelectrons, _nmuons, _ntaus;
+
 };
 
 //
