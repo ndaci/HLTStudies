@@ -117,6 +117,11 @@ MiniAodEff::MiniAodEff(const edm::ParameterSet& pset)
   _tree->Branch("jet_efrac_ch_EM","std::vector<double>",  &_jet_efrac_ch_EM,buffersize);
   _tree->Branch("jet_efrac_ch_Mu","std::vector<double>",  &_jet_efrac_ch_Mu,buffersize);
   //
+  // Leptons/Photons
+  _tree->Branch("nphotons",&_nphotons,"nphotons/I");
+  _tree->Branch("nelectrons",&_nelectrons,"nelectrons/I");
+  _tree->Branch("nmuons",&_nmuons,"nmuons/I");
+  _tree->Branch("ntaus",&_ntaus,"ntaus/I");
 
 }
 
