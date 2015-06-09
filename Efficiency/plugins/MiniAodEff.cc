@@ -394,36 +394,7 @@ MiniAodEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   /////////////////////
 
-  // JETS //
-
-  _jet_N = H_jets->size();
-
-  for (pat::JetCollection::const_iterator theJet = H_jets->begin(); theJet != H_jets->end(); ++theJet){
-
-    // Kinematics
-    _jet_pt.push_back  ( theJet->pt() );
-    _jet_eta.push_back ( theJet->eta() );
-    _jet_phi.push_back ( theJet->phi() );
-    _jet_e.push_back   ( theJet->energy() );
-    _jet_m.push_back   ( theJet->mass() );
-
-    // Energy fractions
-    _jet_efrac_ne_Had.push_back( theJet->neutralHadronEnergyFraction() );
-    _jet_efrac_ne_EM.push_back ( theJet->neutralEmEnergyFraction() );
-    _jet_efrac_ch_Had.push_back( theJet->chargedHadronEnergyFraction() );
-    _jet_efrac_ch_EM.push_back ( theJet->chargedEmEnergyFraction() );
-    _jet_efrac_ch_Mu.push_back ( theJet->chargedMuEnergyFraction() );
-
-    // Multiplicities
-    _jet_mult_ch.push_back ( theJet->chargedMultiplicity() );
-    _jet_mult_mu.push_back ( theJet->muonMultiplicity() );
-    _jet_mult_ne.push_back ( theJet->neutralMultiplicity() );
-
-  }
-
-  /////////////////////
-
-  // MET //
+  // JET/MET/MHT //
 
   // MET Filters
   if(_verbose>1) cout << "MET Filters : " ;
@@ -445,12 +416,37 @@ MiniAodEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   const pat::METCollection *C_pfmet = H_met.product();
   _METP4 = (*C_pfmet)[0].p4();
 
-  // MHT
+  // JETS AND MHT
   int nj_ht = 0, nj_mht = 0;
   double ht = 0., mhx = 0., mhy = 0.;
   double pt, eta, phi, px, py;
   //
+  _jet_N = H_jets->size();
+  //
   for (pat::JetCollection::const_iterator theJet = H_jets->begin(); theJet != H_jets->end(); ++theJet){
+
+    // Jets
+    //
+    // Kinematics
+    _jet_pt.push_back  ( theJet->pt() );
+    _jet_eta.push_back ( theJet->eta() );
+    _jet_phi.push_back ( theJet->phi() );
+    _jet_e.push_back   ( theJet->energy() );
+    _jet_m.push_back   ( theJet->mass() );
+    //
+    // Energy fractions
+    _jet_efrac_ne_Had.push_back( theJet->neutralHadronEnergyFraction() );
+    _jet_efrac_ne_EM.push_back ( theJet->neutralEmEnergyFraction() );
+    _jet_efrac_ch_Had.push_back( theJet->chargedHadronEnergyFraction() );
+    _jet_efrac_ch_EM.push_back ( theJet->chargedEmEnergyFraction() );
+    _jet_efrac_ch_Mu.push_back ( theJet->chargedMuEnergyFraction() );
+    //
+    // Multiplicities
+    _jet_mult_ch.push_back ( theJet->chargedMultiplicity() );
+    _jet_mult_mu.push_back ( theJet->muonMultiplicity() );
+    _jet_mult_ne.push_back ( theJet->neutralMultiplicity() );
+
+    // MHT //
     //
     pt = _usePtMHT ? theJet->pt() : theJet->et();
     eta = theJet->eta();
