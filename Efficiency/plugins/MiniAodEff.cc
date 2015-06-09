@@ -270,16 +270,18 @@ MiniAodEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   bool isNone, isL3, isLF, isBoth;
   isNone = isL3 = isLF = isBoth = false;
 
-  cout << "$$$ SIZE OF H_trg_obj = " 
-       << H_trg_obj->size()
-       << " $$$" << endl;
+  if(_verbose>1) {
+    cout << "$$$ SIZE OF H_trg_obj = " 
+	 << H_trg_obj->size()
+	 << " $$$" << endl;
+  }
 
   for (pat::TriggerObjectStandAlone obj : *H_trg_obj) { // note: not "const &" since we want to call unpackPathNames
 
     obj.unpackPathNames(triggerNames);
 
     // pt,eta,phi
-    cout << "\tTrigger object:  pt " << obj.pt() << ", eta " << obj.eta() << ", phi " << obj.phi() << endl;
+    if(_verbose>1) cout << "\tTrigger object:  pt " << obj.pt() << ", eta " << obj.eta() << ", phi " << obj.phi() << endl;
     //
     _trig_obj_pt.push_back( obj.pt());
     _trig_obj_eta.push_back(obj.eta());
@@ -287,29 +289,29 @@ MiniAodEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     // Collection
     trgColl = obj.collection();
-    cout << "\t   Collection: " << trgColl << endl;
+    if(_verbose>1) cout << "\t   Collection: " << trgColl << endl;
     //
     _trig_obj_col.push_back(trgColl);
 
     // Trigger Filter Ids
-    cout << "\t   Type IDs:   ";
+    if(_verbose>1) cout << "\t   Type IDs:   ";
     trgIds = obj.filterIds();
     //
     _trig_obj_ids.push_back(trgIds);
     //
     for (unsigned h = 0; h < trgIds.size(); ++h) {
-      cout << " " << trgIds[h] ;
+      if(_verbose>1) cout << " " << trgIds[h] ;
     }
-    cout << endl;
+    if(_verbose>1) cout << endl;
 
     // Trigger filters
-    cout << "\t   Filters:    ";
+    if(_verbose>1) cout << "\t   Filters:    ";
     trgFilt = obj.filterLabels();
     for (unsigned h = 0; h < trgFilt.size(); ++h) {
-      cout << " " << trgFilt[h];
+      if(_verbose>1) cout << " " << trgFilt[h];
       trgFiltStr += trgFilt[h]+"_%_" ;
     }
-    cout << endl;
+    if(_verbose>1) cout << endl;
     _trig_obj_lab.push_back(trgFiltStr);
 
     // Trigger paths
@@ -322,7 +324,7 @@ MiniAodEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     _trig_obj_path_TF.push_back(concatenate(trgPathsTF));
     _trig_obj_path_TT.push_back(concatenate(trgPathsTT));
     //
-    cout << "\t   Paths (" << trgPathsFF.size()<<"/"<<trgPathsTT.size()<<"):    ";
+    if(_verbose>1) cout << "\t   Paths (" << trgPathsFF.size()<<"/"<<trgPathsTT.size()<<"):    ";
     //
 
     // Loop over all associated paths
@@ -335,13 +337,15 @@ MiniAodEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       isLF   = obj.hasPathName( trgPathsFF[h], true, false ); 
       isBoth = obj.hasPathName( trgPathsFF[h], true, true ); 
 
-      cout << "   " << trgPathsFF[h];
-      if (isBoth) cout << "(L,3)";
-      if (isL3 && !isBoth) cout << "(*,3)";
-      if (isLF && !isBoth) cout << "(L,*)";
-      if (isNone && !isBoth && !isL3 && !isLF) cout << "(*,*)";
+      if(_verbose>1) {
+	cout << "   " << trgPathsFF[h];
+	if (isBoth)  cout << "(L,3)";
+	if (isL3 && !isBoth)  cout << "(*,3)";
+	if (isLF && !isBoth)  cout << "(L,*)";
+	if (isNone && !isBoth && !isL3 && !isLF)  cout << "(*,*)";
+      }
     }
-    cout << endl;
+    if(_verbose>1) cout << endl;
     //
     _trig_obj_path_FF.push_back(trgPathsFFStr);
 
@@ -416,14 +420,14 @@ MiniAodEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   // MET //
 
   // MET Filters
-  cout << "MET Filters : " ;
+  if(_verbose>1) cout << "MET Filters : " ;
   edm::TriggerNames metFilters;
   if(H_metfilt.isValid()) {
     metFilters = iEvent.triggerNames(*H_metfilt);
     for (int iHLT = 0 ; iHLT<static_cast<int>(H_metfilt->size()); ++iHLT) {	
       if (H_metfilt->accept (iHLT)) {
 	_met_filters.push_back(metFilters.triggerName(iHLT));
-	cout << "   " << metFilters.triggerName(iHLT);
+	if(_verbose>1) cout << "   " << metFilters.triggerName(iHLT);
       }
     }
   }
