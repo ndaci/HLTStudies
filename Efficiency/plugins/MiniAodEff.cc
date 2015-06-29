@@ -123,6 +123,24 @@ MiniAodEff::MiniAodEff(const edm::ParameterSet& pset)
   _tree->Branch("nelectrons",&_nelectrons,"nelectrons/I");
   _tree->Branch("nmuons",&_nmuons,"nmuons/I");
   _tree->Branch("ntaus",&_ntaus,"ntaus/I");
+  //
+  // Control regions
+  _tree->Branch("mu1pid", &_mu1pid,"mu1pid/I");  
+  _tree->Branch("mu1pt", &_mu1pt,"mu1pt/D");  
+  _tree->Branch("mu1p", &_mu1p,"mu1p/D");  
+  _tree->Branch("mu1eta", &_mu1eta,"mu1eta/D");  
+  _tree->Branch("mu1phi", &_mu1phi,"mu1phi/D");  
+  _tree->Branch("mu2pid", &_mu2pid,"mu2pid/I");  
+  _tree->Branch("mu2pt", &_mu2pt,"mu2pt/D");  
+  _tree->Branch("mu2p", &_mu2p,"mu2p/D");  
+  _tree->Branch("mu2eta", &_mu2eta,"mu2eta/D");  
+  _tree->Branch("mu2phi", &_mu2phi,"mu2phi/D");  
+  //
+  _tree->Branch("wmt", &_wmt,"wmt/D");  
+  _tree->Branch("zmass", &_zmass,"zmass/D");  
+  _tree->Branch("zpt", &_zpt,"zpt/D");  
+  _tree->Branch("zeta", &_zeta,"zeta/D");  
+  _tree->Branch("zphi", &_zphi,"zphi/D");  
 
 }
 
@@ -507,6 +525,7 @@ MiniAodEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   _nphotons   = H_pho->size();
   _nelectrons = H_ele->size();
   _nmuons     = H_mu->size();
+
   //
   _ntaus = 0;
   for (pat::TauCollection::const_iterator taus_iter = H_tau->begin(); taus_iter != H_tau->end(); ++taus_iter) {
@@ -516,6 +535,51 @@ MiniAodEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     if( taus_iter->tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits") <= 0.5) continue;
     _ntaus++;
   }  
+
+  // CTRL REGIONS (just in case) //
+  //
+  TLorentzVector mu1vec, mu2vec, zvec; 
+  //
+  if (_nmuons >= 1) {
+    pat::MuonRef muon = H_mu[0];
+    _mu1pid = muon->pdgId(); 
+    _mu1pt  = muon->pt(); 
+    _mu1p   = muon->p(); 
+    _mu1eta = muon->eta(); 
+    _mu1phi = muon->phi();
+
+    /*
+    for (std::size_t i = 0; i < tightmuons.size(); i++) {
+      if (muon == tightmuons[i]) _mu1id = 1;
+    }
+    */
+    
+    _wmt = sqrt(2.0 * _mu1pt * _met * (1.0 - cos(computeDeltaPhi(_mu1phi, _met_phi))));
+
+    if (_nmuons >= 2) {        
+      pat::MuonRef muon = H_mu[1];
+      _mu2pid = muon->pdgId(); 
+      _mu2pt  = muon->pt(); 
+      _mu2p   = muon->p(); 
+      _mu2eta = muon->eta(); 
+      _mu2phi = muon->phi();
+      
+      /*
+	for (std::size_t i = 0; i < tightmuons.size(); i++) {
+	if (muon == tightmuons[i]) mu2id = 1;
+	}
+      */
+            
+      mu1vec.SetPtEtaPhiE(_mu1pt, _mu1eta, _mu1phi, _mu1p);
+      mu2vec.SetPtEtaPhiE(_mu2pt, _mu2eta, _mu2phi, _mu2p);
+      zvec = mu1vec + mu2vec;
+      
+      _zmass = zvec.M();
+      _zpt   = zvec.Pt();
+      _zeta  = zvec.Eta();            
+      _zphi  = zvec.Phi();
+    }
+  }
 
   /////////////////////
 

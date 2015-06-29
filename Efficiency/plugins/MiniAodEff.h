@@ -189,6 +189,10 @@ class MiniAodEff : public edm::EDAnalyzer {
 
   // Leptons/Photons
   Int_t _nphotons, _nelectrons, _nmuons, _ntaus;
+  Int_t _mu1pid, _mu2pid;
+  Double_t _mu1pt, _mu1p, _mu1eta, _mu1phi, 
+    _mu2pt, _mu2p, _mu2eta, _mu2phi,
+    _wmt, _zmass, _zpt, _zeta, _zphi;
 
 };
 
