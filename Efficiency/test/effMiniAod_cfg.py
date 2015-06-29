@@ -5,7 +5,7 @@ process = cms.Process("EFFMINIAOD")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(2) )
 
 tag=""
 for i in range(0,len(sys.argv)):
